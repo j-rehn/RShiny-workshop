@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Jacqueline Rehn" />
+
+
+<title>Interactive Outputs (Tables/Plots)</title>
+
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #204a87; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #8f5902; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #204a87; font-weight: bold; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-inverse  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">RShiny Workshop (COMBINE)</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="./gettingstarted.html">Getting Started</a>
+</li>
+<li>
+  <a href="./workshop-overview.html">Introduction</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Tutorials
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="./02_birthday_app.html">02 Birthday App</a>
+    </li>
+    <li>
+      <a href="./03_shiny_reactivity.html">03 Reactivity</a>
+    </li>
+    <li>
+      <a href="./04_interactive_outputs.html">04 Interactive Outputs</a>
+    </li>
+    <li>
+      <a href="./05_shiny_modules.html">05 Shiny Modules</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Interactive Outputs (Tables/Plots)</h1>
+<h4 class="author">Jacqueline Rehn</h4>
+
+</div>
+
+
+<div id="why-use-interactive-tables-and-plots" class="section level1">
+<h1>Why Use Interactive Tables and Plots?</h1>
+<p>Interactive outputs in Shiny apps make data analysis and
+interpretation more effective by enabling users to explore, filter, and
+visualize information dynamically, leading to deeper insights and more
+engaging presentations.</p>
+<p><strong>User-Driven Exploration</strong>: Users can sort, search, and
+filter data directly in the app, allowing them to focus on the most
+relevant information without needing to re-run code or reload pages.</p>
+<p><strong>Custom Actions</strong>: Tables built with <code>DT</code>
+can respond to user actions, such as row selection or cell editing,
+supporting workflows like data annotation or downstream analysis.</p>
+<p><strong>Professional Presentation</strong>: Interactive tables look
+polished and provide features like pagination, column highlighting, and
+export options, making them suitable for sharing with non-technical
+audiences.</p>
+<p><strong>Deeper Insight Through Interaction</strong>: Interactive
+plots allow users to zoom, pan, hover for details, and select subsets of
+data, making it easier to uncover trends and relationships that might be
+missed in static charts.</p>
+</div>
+<div id="building-our-rna-seq-app" class="section level1">
+<h1>Building Our RNA-Seq App</h1>
+<p>In this tutorial we will build a Shiny App for exploring results from
+a differential gene expression analysis performed on RNA-seq data. The
+data we are exploring has been saved in the <code>data/</code> directory
+and was generated by following the steps described in <a
+href="https://bioconductor.org/packages/release/workflows/vignettes/RNAseq123/inst/doc/limmaWorkflow.html">RNA-seq
+analysis is easy as 1-2-3 with limma, Glimma and edgeR</a>. The analysed
+data consisted of three cell populations (basal, luminal progenitor (LP)
+and mature luminal (ML)) sorted from the mammary glands of female virgin
+mice, each profiled in triplicate.</p>
+<p>Within our app we will include a volcano plot of genes DE between
+cell types. We will also include some box-plots for deeper comparison of
+gene expression across cell types. Finally, we wish to generate a
+heatmap of DEG’s across all cell types.</p>
+<p>As we build the app, you see how to create a multitab structure. We
+will also demonstrate how to convert static tables/plots into
+interactive one’s and compare the difference.</p>
+<div id="step-1-creating-the-basic-framework" class="section level2">
+<h2>Step 1: Creating the Basic Framework</h2>
+<p>Let’s set up the basic structure of our app. Open a new R script and
+paste in the following code:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># load required libraries</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">library</span>(pheatmap)</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co"># import data</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>dge_results <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">here</span>(<span class="st">&quot;data/top.treat.results.rds&quot;</span>))</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>lcpm <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">here</span>(<span class="st">&quot;data/lcpm.rds&quot;</span>))</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>top_genes <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">&quot;data/top.DE.mouse.genes.csv&quot;</span>))</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co"># replace colnames with group_sample ID</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="fu">colnames</span>(lcpm) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;LP_1&quot;</span>, <span class="st">&quot;ML_1&quot;</span>, <span class="st">&quot;Basal_1&quot;</span>, <span class="st">&quot;Basal_2&quot;</span>, <span class="st">&quot;ML_2&quot;</span>, <span class="st">&quot;LP_2&quot;</span>, <span class="st">&quot;Basal_3&quot;</span>, <span class="st">&quot;ML_3&quot;</span>, <span class="st">&quot;LP_3&quot;</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="co"># subset lcpm for DEG&#39;s</span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>deg_matrix <span class="ot">&lt;-</span> lcpm[<span class="fu">rownames</span>(lcpm) <span class="sc">%in%</span> top_genes<span class="sc">$</span>gene, ]</span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="co"># pivot to long format</span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a>deg_long <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(deg_matrix) <span class="sc">%&gt;%</span></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Gene =</span> <span class="fu">rownames</span>(.)) <span class="sc">%&gt;%</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>Gene, <span class="at">names_to =</span> <span class="st">&quot;Sample&quot;</span>, <span class="at">values_to =</span> <span class="st">&quot;Expression&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Group =</span> <span class="fu">ifelse</span>(<span class="fu">grepl</span>(<span class="st">&quot;LP_&quot;</span>, Sample), <span class="st">&quot;LP&quot;</span>,</span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>                        <span class="fu">ifelse</span>(<span class="fu">grepl</span>(<span class="st">&quot;ML&quot;</span>, Sample), <span class="st">&quot;ML&quot;</span>, <span class="st">&quot;Basal&quot;</span>)))</span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a><span class="co"># Define UI</span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(</span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a>  </span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a>  <span class="fu">titlePanel</span>(<span class="st">&quot;Gene Expression Visualization&quot;</span>),</span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a>  </span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a>  <span class="fu">tabsetPanel</span>(</span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a>    </span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a>    <span class="fu">tabPanel</span>(<span class="st">&quot;Static Volcano Plot&quot;</span>,</span>
+<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a>             <span class="co"># Our input controls &amp; outputs for the volcano plot will go here</span></span>
+<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a>    ),</span>
+<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a>    <span class="fu">tabPanel</span>(<span class="st">&quot;Static Box-plots&quot;</span>,</span>
+<span id="cb1-36"><a href="#cb1-36" tabindex="-1"></a>             <span class="co"># Our input controls &amp; outputs for the boxplots will go here</span></span>
+<span id="cb1-37"><a href="#cb1-37" tabindex="-1"></a>    ),</span>
+<span id="cb1-38"><a href="#cb1-38" tabindex="-1"></a>    <span class="fu">tabPanel</span>(<span class="st">&quot;Static Heatmap&quot;</span>,</span>
+<span id="cb1-39"><a href="#cb1-39" tabindex="-1"></a>             <span class="co"># our output for heatmap will go here</span></span>
+<span id="cb1-40"><a href="#cb1-40" tabindex="-1"></a>    )</span>
+<span id="cb1-41"><a href="#cb1-41" tabindex="-1"></a>  )</span>
+<span id="cb1-42"><a href="#cb1-42" tabindex="-1"></a>)</span>
+<span id="cb1-43"><a href="#cb1-43" tabindex="-1"></a></span>
+<span id="cb1-44"><a href="#cb1-44" tabindex="-1"></a><span class="co"># Define server logic</span></span>
+<span id="cb1-45"><a href="#cb1-45" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output) {</span>
+<span id="cb1-46"><a href="#cb1-46" tabindex="-1"></a>  <span class="co"># Our server logic will go here</span></span>
+<span id="cb1-47"><a href="#cb1-47" tabindex="-1"></a>}</span>
+<span id="cb1-48"><a href="#cb1-48" tabindex="-1"></a></span>
+<span id="cb1-49"><a href="#cb1-49" tabindex="-1"></a><span class="co"># Run the application </span></span>
+<span id="cb1-50"><a href="#cb1-50" tabindex="-1"></a><span class="fu">shinyApp</span>(<span class="at">ui =</span> ui, <span class="at">server =</span> server)</span></code></pre></div>
+<p>In this framework:</p>
+<ul>
+<li><code>titlePanel()</code> creates a header for our app.</li>
+<li><code>tabsetPanel()</code> organizes the app’s content into multiple
+tabs, allowing users to switch between different views or sections
+within the same app interface.</li>
+<li><code>tabPanel()</code> defines the content of each individual tab
+within a tabsetPanel().</li>
+</ul>
+<p>We have also imported the RNA-seq data and prepared this ready to
+plot/display. The available data includes:</p>
+<ul>
+<li><code>dge_results</code> : consists of a list object containing 3
+dataframes. Each data frame represents a different cell type comparison
+(e.g. basal vs LP; basal vs ML). Within each data frame we have list of
+genes (SYMBOL) each of which has: calculated log-fold-change (logFC),
+Average expression (AveExpr), adjusted P-value (adj.P.Val), whether the
+change in expression is significant (isSignficant), and direction of
+change in expression (DE; Down/Up).<br />
+</li>
+<li><code>lcpm</code> : is a matrix of normalised counts for all 9
+Samples included in the analysis.</li>
+<li><code>top_genes</code> is a list of 121 genes representing top DEG’s
+in the analysis.</li>
+<li><code>deg_matrix</code> : is the matrix of normalised counts, subset
+for significant DE genes.</li>
+<li><code>deg_long</code> : is the deg_matrix in long format with the
+cell type for each sample indicated (Group).</li>
+</ul>
+</div>
+<div id="step-2-adding-input-controls-output-elements"
+class="section level2">
+<h2>Step 2: Adding Input Controls &amp; Output elements</h2>
+<p>Now, let’s add the input controls &amp; output elements to our
+app:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="fu">titlePanel</span>(<span class="st">&quot;Gene Expression Visualization&quot;</span>),</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="fu">tabsetPanel</span>(</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>    <span class="fu">tabPanel</span>(<span class="st">&quot;Static Volcano Plot&quot;</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>             <span class="co"># Select contrast for volcano plot</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>             <span class="fu">selectInput</span>(<span class="st">&quot;contrast&quot;</span>, <span class="st">&quot;Select a contrast:&quot;</span>, <span class="at">choices =</span> <span class="fu">names</span>(dge_results)),</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>             <span class="co"># Display the volcano plot</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>             <span class="fu">plotOutput</span>(<span class="st">&quot;volcanoPlot&quot;</span>),</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>             <span class="co"># Display table of DEG&#39;s</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>             <span class="fu">tableOutput</span>(<span class="st">&quot;top_dge&quot;</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>    ),</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>    <span class="fu">tabPanel</span>(<span class="st">&quot;Static Box-plots&quot;</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>             <span class="co"># Select gene to plot</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>             <span class="fu">selectInput</span>(<span class="st">&quot;gene&quot;</span>, <span class="st">&quot;Select a gene to plot:&quot;</span>, <span class="at">choices =</span> top_genes<span class="sc">$</span>gene),</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>             <span class="co"># Display the box-plot</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>             <span class="fu">plotOutput</span>(<span class="st">&quot;boxplot&quot;</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>    ),</span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>    <span class="fu">tabPanel</span>(<span class="st">&quot;Static Heatmap&quot;</span>,</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>             <span class="co"># display heatmap</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>             <span class="fu">plotOutput</span>(<span class="st">&quot;heatmap&quot;</span>, <span class="at">height =</span> <span class="dv">500</span>)</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>    )</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>  )</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>)</span></code></pre></div>
+<p>Let’s break down the input controls:</p>
+<ol style="list-style-type: decimal">
+<li><code>selectInput("contrast", "Select a contrast:", choices = names(dge_results))</code>:
+Creates a dropdown menu for the user to select a contrast (comparison)
+from your differential gene expression (DGE) results.
+<ul>
+<li><code>"contrast"</code> is the unique input ID used to access the
+user’s selection in the server logic</li>
+<li><code>"Select a contrast to review:"</code> is the label displayed
+above the dropdown.</li>
+<li><code>choices = names(dge_results)</code> populates the dropdown
+with the names of available contrasts from your DGE results list
+object.</li>
+</ul></li>
+<li><code>selectInput("gene", "Select a gene to plot:", choices = top_genes$gene)</code>
+: Creates a dropdown menu for users to select a specific gene to
+visualize.
+<ul>
+<li><code>"gene"</code> is the input ID used to access the user’s
+selection in the server logic.</li>
+<li><code>"Select a gene to plot:"</code> is the label shown above the
+dropdown.</li>
+<li><code>choices = top_genes$gene</code> populates the dropdown with
+gene names from the top_genes data frame.</li>
+</ul></li>
+</ol>
+<p>Let’s break down the output elements:</p>
+<ol style="list-style-type: decimal">
+<li><code>plotOutput("volcanoPlot")</code>: Defines a space in the UI
+where a volcano plot will be displayed.
+<ul>
+<li><code>"volcanoPlot"</code> is the output ID that we’ll use in the
+server logic</li>
+</ul></li>
+<li><code>tableOutput("top_dge")</code> : Defines a space in the UI for
+displaying a table of top differentially expressed genes (DEGs).
+<ul>
+<li><code>"top_dge"</code> is the output ID that we’ll use in the server
+logic</li>
+</ul></li>
+<li><code>plotOutput("boxplot")</code> : Defines a UI area to display a
+boxplot for the selected gene.
+<ul>
+<li><code>"boxplot"</code> is the output ID that we’ll use in the server
+logic</li>
+</ul></li>
+<li><code>plotOutput("heatmap", height = 500)</code> : Allocates space
+in the UI for displaying a heatmap of DEG’s
+<ul>
+<li><code>"heatmap"</code> is the output ID that we’ll use in the server
+logic</li>
+<li><code>height = 500</code> sets the plot area’s vertical size to 500
+pixels for better visibility</li>
+</ul></li>
+</ol>
+</div>
+<div id="step-3-adding-server-logic" class="section level2">
+<h2>Step 3: Adding Server Logic</h2>
+<p>Now, let’s write the server logic that processes inputs and creates
+outputs. Add the following code to your R script:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output) {</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  </span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="co"># extract chosen DGE contrast from dge_results list</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  contrast <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>    <span class="fu">req</span>(input<span class="sc">$</span>contrast)</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>    dge_results[[input<span class="sc">$</span>contrast]]</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  })</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  </span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>  <span class="co"># generate volcano plot</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  output<span class="sc">$</span>volcanoPlot <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>({</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>    </span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>    <span class="fu">contrast</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>      <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> logFC, </span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>                 <span class="at">y =</span> <span class="sc">-</span><span class="fu">log10</span>(P.Value),</span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>                 <span class="at">colour =</span> DE,</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>                 <span class="at">text =</span> <span class="fu">paste</span>(<span class="st">&quot;Gene:&quot;</span>, SYMBOL, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>                              <span class="st">&quot;EntrezID:&quot;</span>, ENTREZID, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>                              <span class="st">&quot;Chr:&quot;</span>, TXCHROM, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>))) <span class="sc">+</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>      <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">1</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> </span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>      <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;grey&quot;</span>, <span class="st">&quot;red&quot;</span>), </span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>                          <span class="at">breaks =</span> <span class="fu">c</span>(<span class="st">&quot;Down&quot;</span>, <span class="st">&quot;Not significant&quot;</span>, <span class="st">&quot;Up&quot;</span>)) <span class="sc">+</span> </span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>      <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a>      <span class="fu">theme</span>(<span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a>            <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a>            <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>))</span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a>    </span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a>  })</span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a>  </span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a>  <span class="co"># generate table of DEG</span></span>
+<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a>  output<span class="sc">$</span>top_dge <span class="ot">&lt;-</span> <span class="fu">renderTable</span>({</span>
+<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a>    </span>
+<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="fu">contrast</span>(), isSignificant <span class="sc">==</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a>      <span class="fu">arrange</span>(adj.P.Val) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">select</span>(SYMBOL, TXCHROM, logFC, adj.P.Val, DE) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a>      <span class="fu">head</span>(<span class="at">n=</span><span class="dv">20</span>)</span>
+<span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a>    </span>
+<span id="cb3-37"><a href="#cb3-37" tabindex="-1"></a>  })</span>
+<span id="cb3-38"><a href="#cb3-38" tabindex="-1"></a>  </span>
+<span id="cb3-39"><a href="#cb3-39" tabindex="-1"></a>  <span class="co"># generate box-plot</span></span>
+<span id="cb3-40"><a href="#cb3-40" tabindex="-1"></a>  output<span class="sc">$</span>boxplot <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>({</span>
+<span id="cb3-41"><a href="#cb3-41" tabindex="-1"></a>    </span>
+<span id="cb3-42"><a href="#cb3-42" tabindex="-1"></a>    <span class="fu">filter</span>(deg_long, Gene <span class="sc">==</span> input<span class="sc">$</span>gene) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-43"><a href="#cb3-43" tabindex="-1"></a>      <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Group, <span class="at">y =</span> Expression)) <span class="sc">+</span> </span>
+<span id="cb3-44"><a href="#cb3-44" tabindex="-1"></a>      <span class="fu">geom_boxplot</span>() <span class="sc">+</span> </span>
+<span id="cb3-45"><a href="#cb3-45" tabindex="-1"></a>      <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">5</span>, <span class="dv">15</span>)) <span class="sc">+</span> </span>
+<span id="cb3-46"><a href="#cb3-46" tabindex="-1"></a>      <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">colour =</span> Group)) <span class="sc">+</span> </span>
+<span id="cb3-47"><a href="#cb3-47" tabindex="-1"></a>      <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
+<span id="cb3-48"><a href="#cb3-48" tabindex="-1"></a>      <span class="fu">theme</span>(<span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),</span>
+<span id="cb3-49"><a href="#cb3-49" tabindex="-1"></a>            <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb3-50"><a href="#cb3-50" tabindex="-1"></a>            <span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb3-51"><a href="#cb3-51" tabindex="-1"></a>      <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Cell Type&quot;</span>, <span class="at">y=</span><span class="fu">expression</span>(<span class="st">&quot;Counts per million (log&quot;</span>[<span class="dv">2</span>]<span class="sc">*</span><span class="st">&quot;)&quot;</span>))</span>
+<span id="cb3-52"><a href="#cb3-52" tabindex="-1"></a>    </span>
+<span id="cb3-53"><a href="#cb3-53" tabindex="-1"></a>  })</span>
+<span id="cb3-54"><a href="#cb3-54" tabindex="-1"></a>  </span>
+<span id="cb3-55"><a href="#cb3-55" tabindex="-1"></a>  <span class="co"># generate heatmap</span></span>
+<span id="cb3-56"><a href="#cb3-56" tabindex="-1"></a>  output<span class="sc">$</span>heatmap <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>({</span>
+<span id="cb3-57"><a href="#cb3-57" tabindex="-1"></a>    <span class="fu">pheatmap</span>(deg_matrix, <span class="at">cluster_rows =</span> <span class="cn">TRUE</span>, <span class="at">cluster_cols =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-58"><a href="#cb3-58" tabindex="-1"></a>  })</span>
+<span id="cb3-59"><a href="#cb3-59" tabindex="-1"></a>  </span>
+<span id="cb3-60"><a href="#cb3-60" tabindex="-1"></a>}</span></code></pre></div>
+<p>Let’s break down the server logic:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Reactive Contrast Selection</strong>:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>contrast <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a> <span class="fu">req</span>(input<span class="sc">$</span>contrast)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a> dge_results[[input<span class="sc">$</span>contrast]]</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>})</span></code></pre></div>
+<ul>
+<li>Creates a reactive expression that selects the appropriate DGE
+results data frame based on the user’s choice in the contrast dropdown
+menu</li>
+<li><code>input$contrast</code> comes from the UI dropdown.</li>
+<li>The function returns the corresponding data frame from the
+<code>dge_results</code> list.</li>
+<li>The result is accessed as <code>contrast()</code> elsewhere in the
+server logic.</li>
+</ul></li>
+<li><p><strong>Volcano Plot Generation</strong></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>output<span class="sc">$</span>volcanoPlot <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>({</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a> <span class="fu">contrast</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>   <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> logFC, </span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>              <span class="at">y =</span> <span class="sc">-</span><span class="fu">log10</span>(P.Value),</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>              <span class="at">colour =</span> DE,</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>              <span class="at">text =</span> <span class="fu">paste</span>(<span class="st">&quot;Gene:&quot;</span>, SYMBOL, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>                           <span class="st">&quot;EntrezID:&quot;</span>, ENTREZID, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>                           <span class="st">&quot;Chr:&quot;</span>, TXCHROM, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>))) <span class="sc">+</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>   <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">1</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> </span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>   <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;grey&quot;</span>, <span class="st">&quot;red&quot;</span>), </span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>                       <span class="at">breaks =</span> <span class="fu">c</span>(<span class="st">&quot;Down&quot;</span>, <span class="st">&quot;Not significant&quot;</span>, <span class="st">&quot;Up&quot;</span>)) <span class="sc">+</span> </span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a>   <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>   <span class="fu">theme</span>(<span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>         <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>         <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>))</span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>})</span></code></pre></div>
+<ul>
+<li>Renders a volcano plot for the selected contrast.</li>
+<li>Uses the data from the selected contrast
+(<code>contrast()</code>)</li>
+<li>Each point represents a gene; color indicates DEG status
+(<code>DE</code>)</li>
+<li>Tooltip text is prepared (for possible interactive use).</li>
+<li>Aesthetic and theme customizations improve readability.</li>
+</ul></li>
+<li><p><strong>Table of Top DEGs</strong></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>output<span class="sc">$</span>top_dge <span class="ot">&lt;-</span> <span class="fu">renderTable</span>({</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a> <span class="fu">filter</span>(<span class="fu">contrast</span>(), isSignificant <span class="sc">==</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>   <span class="fu">arrange</span>(adj.P.Val) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>   dplyr<span class="sc">::</span><span class="fu">select</span>(SYMBOL, TXCHROM, logFC, adj.P.Val, DE) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>   <span class="fu">head</span>(<span class="at">n=</span><span class="dv">20</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>})</span></code></pre></div>
+<ul>
+<li>Displays a table of the top 20 significant DEGs for the selected
+contrast.</li>
+<li>Filters for significant genes
+(<code>isSignificant == TRUE</code>).</li>
+<li>Sorts by adjusted p-value (<code>adj.P.Val</code>), showing the most
+significant genes first.</li>
+<li>Selects relevant columns for display.</li>
+<li>Shows only the top 20 genes.</li>
+</ul></li>
+<li><p><strong>Boxplot Generation</strong></p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>output<span class="sc">$</span>boxplot <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>({</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a> <span class="fu">filter</span>(deg_long, Gene <span class="sc">==</span> input<span class="sc">$</span>gene) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>   <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Group, <span class="at">y =</span> Expression)) <span class="sc">+</span> </span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>   <span class="fu">geom_boxplot</span>() <span class="sc">+</span> </span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>   <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">5</span>, <span class="dv">15</span>)) <span class="sc">+</span> </span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>   <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">colour =</span> Group)) <span class="sc">+</span> </span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>   <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>   <span class="fu">theme</span>(<span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>         <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>         <span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>   <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Cell Type&quot;</span>, <span class="at">y=</span><span class="fu">expression</span>(<span class="st">&quot;Counts per million (log&quot;</span>[<span class="dv">2</span>]<span class="sc">*</span><span class="st">&quot;)&quot;</span>))</span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>})</span></code></pre></div>
+<ul>
+<li>Creates a boxplot showing expression levels of a selected gene
+across different groups/cell types.</li>
+<li><code>filter(deg_long, Gene == input$gene)</code> selects expression
+data for the user-chosen gene from <code>input$gene</code>.</li>
+<li><code>geom_boxplot()</code> shows distribution statistics (median,
+quartiles).</li>
+<li><code>geom_jitter()</code> overlays individual data points with
+group-specific coloring.</li>
+<li><code>scale_y_continuous(limits = c(-5, 15))</code> sets expression
+range.</li>
+<li>Custom themes and labels improve readability.</li>
+<li><code>expression()</code> creates a formatted log₂ y-axis
+label.</li>
+</ul></li>
+<li><p><strong>Heatmap Generation</strong></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>output<span class="sc">$</span>heatmap <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>({</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a> <span class="fu">pheatmap</span>(deg_matrix, <span class="at">cluster_rows =</span> <span class="cn">TRUE</span>, <span class="at">cluster_cols =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>})</span></code></pre></div>
+<ul>
+<li>Displays a clustered heatmap of gene expression data.</li>
+<li><code>pheatmap()</code> from the pheatmap package generates the
+heatmap.</li>
+<li><code>cluster_rows = TRUE</code> applies hierarchical clustering to
+genes (rows).</li>
+<li><code>cluster_cols = TRUE</code> applies hierarchical clustering to
+samples/groups (columns).</li>
+<li>Dendrograms are automatically displayed for both dimensions.</li>
+</ul></li>
+</ol>
+</div>
+<div id="step-5-create-the-complete-static-app" class="section level2">
+<h2>Step 5: Create the complete Static App</h2>
+<p>Now, let’s put everything together to create our complete Shiny
+app:</p>
+<ol style="list-style-type: decimal">
+<li>Add <code>shinyApp(ui = ui, server = server)</code> to the final
+line of the script/markdown</li>
+<li>Save the file with a name like “static_dgeVis_app.R”.</li>
+<li>Click the “Run App” button in RStudio (or use
+<code>shiny::runApp()</code> in the console)</li>
+</ol>
+<p>If you have any trouble with these steps we have created a complete
+version of the static app to test. In <code>example_apps</code> open the
+file <code>05_static_DGEvis_app.R</code> and click the “Run App” button
+in RStudio.</p>
+<p>Spend a few minutes exploring the app. What works well? Where can
+improvements be made?</p>
+</div>
+<div id="step-6-create-an-interactive-table" class="section level2">
+<h2>Step 6: Create An Interactive Table</h2>
+<p>One issue with the DEG results table is that the table only displays
+the top 20 results. Given there are over 1000 DEG’s identified in this
+analysis, presenting data in this way is limiting. By converting this
+element of the app to an interactive table we can incorporate features
+such as pagination, search and sort functionality which would make these
+results much easier to explore.</p>
+<p>To do this we will use the R package <code>DT</code> which provides
+an R interface to the JavaScript library DataTables, allowing R data
+frames or matrices to be rendered as interactive HTML tables in web
+applications, including Shiny apps.</p>
+<p>DT integrates seamlessly with Shiny by replacing standard table
+outputs:</p>
+<ul>
+<li>Use <code>DTOutput()</code> in the UI instead of
+<code>tableOutput()</code>.<br />
+</li>
+<li>Use <code>renderDT()</code> in the server instead of
+<code>renderTable()</code>.</li>
+</ul>
+<p>Let’s try this out. Begin by making a copy of our static
+<code>static_dgeVis_app.R</code>
+(e.g. <code>interactive_dgeVis_app.R</code>). In the copy we will make
+the following changes to the app.</p>
+<p><strong>A. Add the <code>DT</code> package to the top of the
+script</strong></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">library</span>(DT)</span></code></pre></div>
+<p><strong>B. Update the UI</strong><br />
+Replace:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">tableOutput</span>(<span class="st">&quot;top_dge&quot;</span>)</span></code></pre></div>
+<p>with:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">DTOutput</span>(<span class="st">&quot;top_dge&quot;</span>)</span></code></pre></div>
+<p><strong>C. Update the Server Logic</strong><br />
+Replace:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>output<span class="sc">$</span>top_dge <span class="ot">&lt;-</span> <span class="fu">renderTable</span>({</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>    <span class="co"># ... filter/select code ...</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>   })</span></code></pre></div>
+<p>with:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>output<span class="sc">$</span>top_dge <span class="ot">&lt;-</span> <span class="fu">renderDT</span>({</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>    </span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>    df <span class="ot">&lt;-</span> <span class="fu">filter</span>(<span class="fu">contrast</span>(), isSignificant <span class="sc">==</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>      <span class="fu">arrange</span>(adj.P.Val) <span class="sc">%&gt;%</span> </span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">select</span>(SYMBOL, TXCHROM, logFC, adj.P.Val, DE)</span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>    </span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>    <span class="co"># pass table to DT and supply parameters</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a>    <span class="fu">datatable</span>(df,</span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>              <span class="at">rownames =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a>              <span class="at">filter =</span> <span class="st">&quot;top&quot;</span>,</span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a>              <span class="at">options =</span> <span class="fu">list</span>(</span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a>                <span class="at">pageLength =</span> <span class="dv">10</span>,</span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a>                <span class="at">lengthChange =</span> <span class="cn">FALSE</span></span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a>              ))</span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a>    </span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a>  })</span></code></pre></div>
+<p>Let’s breakdown the changes:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Alternate Output Function</strong>
+<ul>
+<li>To output a DT table use <code>DTOutput("top_dge")</code> in place
+of <code>tableOutput("top_dge")</code></li>
+</ul></li>
+<li><strong>Alternate Render Function</strong>
+<ul>
+<li>Uses <code>renderDT()</code> in place of
+<code>renderTable()</code>.</li>
+<li>The <strong>entire</strong> filtered, sorted, selected table is
+assigned to a variable (<code>df</code>)</li>
+<li>Uses <code>datatable()</code> from the DT package to create an
+interactive table.</li>
+<li>Specifies several table features:
+<ul>
+<li>No row names (<code>rownames = FALSE</code>).</li>
+<li>Filter box at the top (<code>filter = "top"</code>), allowing users
+to search within the table.</li>
+<li>Pagination: Only 10 rows displayed per page
+(<code>pageLength = 10</code>), with navigation for more.</li>
+<li>No option for users to change page length
+(<code>lengthChange = FALSE</code>).</li>
+</ul></li>
+</ul></li>
+</ol>
+<p>Save the changes you have made and try re-running the app. If you
+have any issues you can test the version
+<code>example_apps/05a_DGEvis_DT_app.R</code>.</p>
+<p><strong>How does DT improve the table feature?</strong></p>
+<p>Here we have included just a few table features offered by
+<code>DT</code> which has made the table much more user friendly.
+Additional features include:</p>
+<p><strong>Features Set Directly in
+<code>datatable()</code></strong></p>
+<ul>
+<li><code>colnames</code>: Set custom column names.<br />
+</li>
+<li><code>class</code>: Apply CSS classes for styling (e.g., “display”,
+“compact”).<br />
+</li>
+<li><code>caption</code>: Add a table caption.<br />
+</li>
+<li><code>selection</code>: Enable row/column selection (“single”,
+“multiple”, “none”).<br />
+</li>
+<li><code>editable</code>: Make the table editable (TRUE or
+FALSE).<br />
+</li>
+<li><code>width/height</code>: Set table size in pixels.</li>
+</ul>
+<p><strong>Features Set Within
+<code>options = list()</code></strong></p>
+<ul>
+<li><code>lengthMenu</code>: Options for user to change page length
+(e.g., lengthMenu = c(5, 10, 20)).<br />
+</li>
+<li><code>searching</code>: Enable/disable the global search box.<br />
+</li>
+<li><code>ordering</code>: Enable/disable column sorting.<br />
+</li>
+<li><code>autoWidth</code>: Automatically adjust column widths.<br />
+</li>
+<li><code>columnDefs</code>: Set column-specific options (e.g., width,
+alignment).</li>
+</ul>
+</div>
+<div id="step-7-making-plots-interactive-with-plotly"
+class="section level2">
+<h2>Step 7: Making Plots Interactive with Plotly</h2>
+<p>Our table is interactive. What about the volcano plot? One of the
+simplest ways to convert a static ggplot2 plot into an interactive plot
+is with the R package <code>plotly</code> and the function
+<code>ggplotly()</code></p>
+<p>Let’s try this out by continuing to modify our R script
+<code>interactive_dgeVis_app.R</code>. To the script make the following
+changes:</p>
+<p><strong>A. Add the <code>plotly</code> package to the top of the
+script</strong></p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">library</span>(plotly)</span></code></pre></div>
+<p><strong>B. Update the UI</strong><br />
+Replace:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">plotOutput</span>(<span class="st">&quot;volcanoPlot&quot;</span>)</span></code></pre></div>
+<p>with:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">plotlyOutput</span>(<span class="st">&quot;volcanoPlot&quot;</span>)</span></code></pre></div>
+<p><strong>C. Update the Server Logic</strong><br />
+Replace:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>output<span class="sc">$</span>volcanoPlot <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>({</span>
+<span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>  <span class="co"># ... ggplot code ...</span></span>
+<span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>})</span></code></pre></div>
+<p>with:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>output<span class="sc">$</span>volcanoPlot <span class="ot">&lt;-</span> <span class="fu">renderPlotly</span>({</span>
+<span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>  p <span class="ot">&lt;-</span> <span class="fu">contrast</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a>    <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> logFC, </span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a>               <span class="at">y =</span> <span class="sc">-</span><span class="fu">log10</span>(P.Value),</span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a>               <span class="at">colour =</span> DE,</span>
+<span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a>               <span class="at">text =</span> <span class="fu">paste</span>(<span class="st">&quot;Gene:&quot;</span>, SYMBOL, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a>                            <span class="st">&quot;EntrezID:&quot;</span>, ENTREZID, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a>                            <span class="st">&quot;Chr:&quot;</span>, TXCHROM, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>))) <span class="sc">+</span></span>
+<span id="cb18-9"><a href="#cb18-9" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">1</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> </span>
+<span id="cb18-10"><a href="#cb18-10" tabindex="-1"></a>    <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;grey&quot;</span>, <span class="st">&quot;red&quot;</span>), </span>
+<span id="cb18-11"><a href="#cb18-11" tabindex="-1"></a>                        <span class="at">breaks =</span> <span class="fu">c</span>(<span class="st">&quot;Down&quot;</span>, <span class="st">&quot;Not significant&quot;</span>, <span class="st">&quot;Up&quot;</span>)) <span class="sc">+</span> </span>
+<span id="cb18-12"><a href="#cb18-12" tabindex="-1"></a>    <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
+<span id="cb18-13"><a href="#cb18-13" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb18-14"><a href="#cb18-14" tabindex="-1"></a>          <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb18-15"><a href="#cb18-15" tabindex="-1"></a>          <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>))</span>
+<span id="cb18-16"><a href="#cb18-16" tabindex="-1"></a>  <span class="fu">ggplotly</span>(p, <span class="at">tooltip =</span> <span class="st">&quot;text&quot;</span>)</span>
+<span id="cb18-17"><a href="#cb18-17" tabindex="-1"></a>})</span></code></pre></div>
+<p>Let’s Breakdown the changes we’ve made:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Alternate Output Function</strong>
+<ul>
+<li>Replaced <code>plotOutput("volcanoPlot")</code>
+with<code>plotlyOutput("volcanoPlot")</code> to produce a Plotly
+plot</li>
+</ul></li>
+<li><strong>Alternate Render Function</strong>
+<ul>
+<li>Uses <code>renderPlotly()</code> in place of
+<code>renderPlot()</code>.</li>
+<li>The original ggplot has been assigned to an object
+<code>p &lt;-</code></li>
+<li>The static plot is converted to an interactive plot with
+<code>ggplotly(p, tooltip = "text")</code></li>
+<li>The <code>text</code> aesthetic was present in the static ggplot
+code but did nothing. When converted to an interactive Plotly plot
+(using <code>ggplotly()</code>), Plotly uses the text values to display
+informative tooltips when users hover over each point.</li>
+</ul></li>
+</ol>
+<p>Save your changes and re-run the app. If you have any issues you can
+alternatively test the version
+<code>example_apps/05b_DGEvis_DT_Plotly_app.R</code>.</p>
+<p>What features does <code>Plotly</code> offer in addition to
+‘informative tooltips’ present when you hover over each point?</p>
+<div id="note" class="section level4">
+<h4><strong>NOTE!</strong></h4>
+<p>A new version of ggplot is imminent which uses S7 class objects in
+place of the current S3. This could impact packages like
+<code>Plotly</code> which use ggplot objects.</p>
+</div>
+</div>
+<div id="step-8-adding-an-interactive-heatmap" class="section level2">
+<h2>Step 8: Adding an Interactive Heatmap</h2>
+<p><code>Plotly</code> works well with ggplot objects. But what about
+our heatmap? This is a specialised type of plot which incorporates
+hierarchical clustering of rows and columns which is why we used the R
+package <code>Pheatmap</code> rather than ggplot. Fortunately, there are
+R packages available which can create interactive heatmaps. For this
+tutorial we will use the package <code>heatmaply</code> which builds on
+the <code>plotly</code> visualization framework, using
+<code>plotly's</code> JavaScript engine to render interactive heatmaps
+with features such as zooming, panning, and tooltips that display cell
+values on hover.</p>
+<p>Let’s try this out by continuing to modify our R script
+<code>interactive_dgeVis_app.R</code>. To the script make the following
+changes:</p>
+<p><strong>A. Add the <code>heatmaply</code> package to the top of the
+script</strong></p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a><span class="fu">library</span>(heatmaply)</span></code></pre></div>
+<p><strong>B. Update the UI</strong><br />
+Replace:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a><span class="fu">plotOutput</span>(<span class="st">&quot;heatmap&quot;</span>, <span class="at">height =</span> <span class="st">&quot;500px&quot;</span>)</span></code></pre></div>
+<p>with:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" tabindex="-1"></a><span class="fu">plotlyOutput</span>(<span class="st">&quot;heatmap&quot;</span>)</span></code></pre></div>
+<p><strong>C. Update the Server Logic</strong><br />
+Replace:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" tabindex="-1"></a>output<span class="sc">$</span>heatmap <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>({</span>
+<span id="cb22-2"><a href="#cb22-2" tabindex="-1"></a>  <span class="fu">pheatmap</span>(deg_matrix, <span class="at">cluster_rows =</span> <span class="cn">TRUE</span>, <span class="at">cluster_cols =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb22-3"><a href="#cb22-3" tabindex="-1"></a>})</span></code></pre></div>
+<p>with:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" tabindex="-1"></a>output<span class="sc">$</span>heatmap <span class="ot">&lt;-</span> <span class="fu">renderPlotly</span>({</span>
+<span id="cb23-2"><a href="#cb23-2" tabindex="-1"></a>    <span class="fu">heatmaply</span>(</span>
+<span id="cb23-3"><a href="#cb23-3" tabindex="-1"></a>      deg_matrix,</span>
+<span id="cb23-4"><a href="#cb23-4" tabindex="-1"></a>      <span class="at">fontsize_row =</span> <span class="dv">8</span>,</span>
+<span id="cb23-5"><a href="#cb23-5" tabindex="-1"></a>      <span class="at">fontsize_col =</span> <span class="dv">12</span>,</span>
+<span id="cb23-6"><a href="#cb23-6" tabindex="-1"></a>      <span class="at">height =</span> <span class="dv">900</span></span>
+<span id="cb23-7"><a href="#cb23-7" tabindex="-1"></a>    )</span>
+<span id="cb23-8"><a href="#cb23-8" tabindex="-1"></a>  })</span></code></pre></div>
+<p>Let’s Breakdown the changes we’ve made:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Alternate Output Function</strong>
+<ul>
+<li>Replaced <code>plotOutput("heatmap", height = 500)</code>
+with<code>plotlyOutput("heatmap", height = "500px")</code> to produce a
+Plotly plot</li>
+</ul></li>
+<li><strong>Alternate Render Function</strong>
+<ul>
+<li>Uses <code>renderPlotly()</code> in place of
+<code>renderPlot()</code>.</li>
+<li>Uses <code>heamaply()</code> in place of
+<code>pheatmap()</code></li>
+<li><code>fontsize_row</code> decreases size of gene names.
+<code>fontsize_col</code> increases size of column/sample labels</li>
+<li><code>height</code> increases height of the plot.</li>
+</ul></li>
+</ol>
+<p>Save your changes and re-run the app If you have any issues you can
+test the version
+<code>example_apps/07b_DGEvis_DT_Plotly_app.R</code>.</p>
+<p>Switching from <code>pheatmap</code> to <code>heatmaply</code> and
+using <code>plotlyOutput</code>/<code>renderPlotly</code> makes your
+heatmap interactive, enhancing data exploration and user engagement in
+your Shiny app.</p>
+</div>
+<div id="step-9-putting-it-all-together" class="section level2">
+<h2>Step 9: Putting It All Together</h2>
+<p>Now, let’s put everything together to create our complete interactive
+Shiny app:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="co"># load required libraries</span></span>
+<span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a><span class="fu">library</span>(DT)</span>
+<span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a><span class="fu">library</span>(plotly)</span>
+<span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a><span class="fu">library</span>(heatmaply)</span>
+<span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a></span>
+<span id="cb24-9"><a href="#cb24-9" tabindex="-1"></a><span class="co"># import data</span></span>
+<span id="cb24-10"><a href="#cb24-10" tabindex="-1"></a>dge_results <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">here</span>(<span class="st">&quot;data/top.treat.results.rds&quot;</span>))</span>
+<span id="cb24-11"><a href="#cb24-11" tabindex="-1"></a>lcpm <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">here</span>(<span class="st">&quot;data/lcpm.rds&quot;</span>))</span>
+<span id="cb24-12"><a href="#cb24-12" tabindex="-1"></a>top_genes <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">&quot;data/top.DE.mouse.genes.csv&quot;</span>))</span>
+<span id="cb24-13"><a href="#cb24-13" tabindex="-1"></a><span class="co"># replace colnames with group_sample ID</span></span>
+<span id="cb24-14"><a href="#cb24-14" tabindex="-1"></a><span class="fu">colnames</span>(lcpm) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;LP_1&quot;</span>, <span class="st">&quot;ML_1&quot;</span>, <span class="st">&quot;Basal_1&quot;</span>, <span class="st">&quot;Basal_2&quot;</span>, <span class="st">&quot;ML_2&quot;</span>, <span class="st">&quot;LP_2&quot;</span>, <span class="st">&quot;Basal_3&quot;</span>, <span class="st">&quot;ML_3&quot;</span>, <span class="st">&quot;LP_3&quot;</span>)</span>
+<span id="cb24-15"><a href="#cb24-15" tabindex="-1"></a></span>
+<span id="cb24-16"><a href="#cb24-16" tabindex="-1"></a><span class="co"># subset lcpm for DEG&#39;s</span></span>
+<span id="cb24-17"><a href="#cb24-17" tabindex="-1"></a>deg_matrix <span class="ot">&lt;-</span> lcpm[<span class="fu">rownames</span>(lcpm) <span class="sc">%in%</span> top_genes<span class="sc">$</span>gene, ]</span>
+<span id="cb24-18"><a href="#cb24-18" tabindex="-1"></a></span>
+<span id="cb24-19"><a href="#cb24-19" tabindex="-1"></a><span class="co"># pivot to long format</span></span>
+<span id="cb24-20"><a href="#cb24-20" tabindex="-1"></a>deg_long <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(deg_matrix) <span class="sc">%&gt;%</span></span>
+<span id="cb24-21"><a href="#cb24-21" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Gene =</span> <span class="fu">rownames</span>(.)) <span class="sc">%&gt;%</span></span>
+<span id="cb24-22"><a href="#cb24-22" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>Gene, <span class="at">names_to =</span> <span class="st">&quot;Sample&quot;</span>, <span class="at">values_to =</span> <span class="st">&quot;Expression&quot;</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-23"><a href="#cb24-23" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Group =</span> <span class="fu">ifelse</span>(<span class="fu">grepl</span>(<span class="st">&quot;LP_&quot;</span>, Sample), <span class="st">&quot;LP&quot;</span>,</span>
+<span id="cb24-24"><a href="#cb24-24" tabindex="-1"></a>                        <span class="fu">ifelse</span>(<span class="fu">grepl</span>(<span class="st">&quot;ML&quot;</span>, Sample), <span class="st">&quot;ML&quot;</span>, <span class="st">&quot;Basal&quot;</span>)))</span>
+<span id="cb24-25"><a href="#cb24-25" tabindex="-1"></a></span>
+<span id="cb24-26"><a href="#cb24-26" tabindex="-1"></a><span class="co"># Define UI</span></span>
+<span id="cb24-27"><a href="#cb24-27" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(</span>
+<span id="cb24-28"><a href="#cb24-28" tabindex="-1"></a>  <span class="fu">titlePanel</span>(<span class="st">&quot;Gene Expression Visualization&quot;</span>),</span>
+<span id="cb24-29"><a href="#cb24-29" tabindex="-1"></a>  <span class="fu">tabsetPanel</span>(</span>
+<span id="cb24-30"><a href="#cb24-30" tabindex="-1"></a>    <span class="fu">tabPanel</span>(<span class="st">&quot;Volcano Plot&quot;</span>,</span>
+<span id="cb24-31"><a href="#cb24-31" tabindex="-1"></a>             <span class="co"># Select contrast for volcano plot</span></span>
+<span id="cb24-32"><a href="#cb24-32" tabindex="-1"></a>             <span class="fu">selectInput</span>(<span class="st">&quot;contrast&quot;</span>, <span class="st">&quot;Select a contrast:&quot;</span>, <span class="at">choices =</span> <span class="fu">names</span>(dge_results)),</span>
+<span id="cb24-33"><a href="#cb24-33" tabindex="-1"></a>             <span class="co"># Display the volcano plot</span></span>
+<span id="cb24-34"><a href="#cb24-34" tabindex="-1"></a>             <span class="fu">plotlyOutput</span>(<span class="st">&quot;volcanoPlot&quot;</span>),</span>
+<span id="cb24-35"><a href="#cb24-35" tabindex="-1"></a>             <span class="co"># Display table of DEG&#39;s</span></span>
+<span id="cb24-36"><a href="#cb24-36" tabindex="-1"></a>             <span class="fu">DTOutput</span>(<span class="st">&quot;top_dge&quot;</span>)</span>
+<span id="cb24-37"><a href="#cb24-37" tabindex="-1"></a>    ),</span>
+<span id="cb24-38"><a href="#cb24-38" tabindex="-1"></a>    <span class="fu">tabPanel</span>(<span class="st">&quot;Box-plots&quot;</span>,</span>
+<span id="cb24-39"><a href="#cb24-39" tabindex="-1"></a>             <span class="co"># Select gene to plot</span></span>
+<span id="cb24-40"><a href="#cb24-40" tabindex="-1"></a>             <span class="fu">selectInput</span>(<span class="st">&quot;gene&quot;</span>, <span class="st">&quot;Select a gene to plot:&quot;</span>, <span class="at">choices =</span> top_genes<span class="sc">$</span>gene),</span>
+<span id="cb24-41"><a href="#cb24-41" tabindex="-1"></a>             <span class="co"># Display the box-plot</span></span>
+<span id="cb24-42"><a href="#cb24-42" tabindex="-1"></a>             <span class="fu">plotOutput</span>(<span class="st">&quot;boxplot&quot;</span>)</span>
+<span id="cb24-43"><a href="#cb24-43" tabindex="-1"></a>    ),</span>
+<span id="cb24-44"><a href="#cb24-44" tabindex="-1"></a>    <span class="fu">tabPanel</span>(<span class="st">&quot;Heatmap&quot;</span>,</span>
+<span id="cb24-45"><a href="#cb24-45" tabindex="-1"></a>             <span class="co"># display heatmap</span></span>
+<span id="cb24-46"><a href="#cb24-46" tabindex="-1"></a>             <span class="fu">plotlyOutput</span>(<span class="st">&quot;heatmap&quot;</span>, <span class="at">height =</span> <span class="st">&quot;500px&quot;</span>)</span>
+<span id="cb24-47"><a href="#cb24-47" tabindex="-1"></a>    )</span>
+<span id="cb24-48"><a href="#cb24-48" tabindex="-1"></a>  )</span>
+<span id="cb24-49"><a href="#cb24-49" tabindex="-1"></a>)</span>
+<span id="cb24-50"><a href="#cb24-50" tabindex="-1"></a></span>
+<span id="cb24-51"><a href="#cb24-51" tabindex="-1"></a><span class="co"># Define Server Logic</span></span>
+<span id="cb24-52"><a href="#cb24-52" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output) {</span>
+<span id="cb24-53"><a href="#cb24-53" tabindex="-1"></a>  </span>
+<span id="cb24-54"><a href="#cb24-54" tabindex="-1"></a>  <span class="co"># extract chosen DGE contrast from dge_results list</span></span>
+<span id="cb24-55"><a href="#cb24-55" tabindex="-1"></a>  contrast <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb24-56"><a href="#cb24-56" tabindex="-1"></a>    <span class="fu">req</span>(input<span class="sc">$</span>contrast)</span>
+<span id="cb24-57"><a href="#cb24-57" tabindex="-1"></a>    dge_results[[input<span class="sc">$</span>contrast]]</span>
+<span id="cb24-58"><a href="#cb24-58" tabindex="-1"></a>  })</span>
+<span id="cb24-59"><a href="#cb24-59" tabindex="-1"></a>  </span>
+<span id="cb24-60"><a href="#cb24-60" tabindex="-1"></a>  <span class="co"># generate volcano plot</span></span>
+<span id="cb24-61"><a href="#cb24-61" tabindex="-1"></a>  output<span class="sc">$</span>volcanoPlot <span class="ot">&lt;-</span> <span class="fu">renderPlotly</span>({</span>
+<span id="cb24-62"><a href="#cb24-62" tabindex="-1"></a>    </span>
+<span id="cb24-63"><a href="#cb24-63" tabindex="-1"></a>    p <span class="ot">&lt;-</span> <span class="fu">contrast</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb24-64"><a href="#cb24-64" tabindex="-1"></a>      <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> logFC, </span>
+<span id="cb24-65"><a href="#cb24-65" tabindex="-1"></a>                 <span class="at">y =</span> <span class="sc">-</span><span class="fu">log10</span>(P.Value),</span>
+<span id="cb24-66"><a href="#cb24-66" tabindex="-1"></a>                 <span class="at">colour =</span> DE,</span>
+<span id="cb24-67"><a href="#cb24-67" tabindex="-1"></a>                 <span class="at">text =</span> <span class="fu">paste</span>(<span class="st">&quot;Gene:&quot;</span>, SYMBOL, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb24-68"><a href="#cb24-68" tabindex="-1"></a>                              <span class="st">&quot;EntrezID:&quot;</span>, ENTREZID, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>,</span>
+<span id="cb24-69"><a href="#cb24-69" tabindex="-1"></a>                              <span class="st">&quot;Chr:&quot;</span>, TXCHROM, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>))) <span class="sc">+</span></span>
+<span id="cb24-70"><a href="#cb24-70" tabindex="-1"></a>      <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">1</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span> </span>
+<span id="cb24-71"><a href="#cb24-71" tabindex="-1"></a>      <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;blue&quot;</span>, <span class="st">&quot;grey&quot;</span>, <span class="st">&quot;red&quot;</span>), </span>
+<span id="cb24-72"><a href="#cb24-72" tabindex="-1"></a>                          <span class="at">breaks =</span> <span class="fu">c</span>(<span class="st">&quot;Down&quot;</span>, <span class="st">&quot;Not significant&quot;</span>, <span class="st">&quot;Up&quot;</span>)) <span class="sc">+</span> </span>
+<span id="cb24-73"><a href="#cb24-73" tabindex="-1"></a>      <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
+<span id="cb24-74"><a href="#cb24-74" tabindex="-1"></a>      <span class="fu">theme</span>(<span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb24-75"><a href="#cb24-75" tabindex="-1"></a>            <span class="at">legend.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb24-76"><a href="#cb24-76" tabindex="-1"></a>            <span class="at">legend.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>))</span>
+<span id="cb24-77"><a href="#cb24-77" tabindex="-1"></a>    </span>
+<span id="cb24-78"><a href="#cb24-78" tabindex="-1"></a>    <span class="fu">ggplotly</span>(p, <span class="at">tooltip =</span> <span class="st">&quot;text&quot;</span>)</span>
+<span id="cb24-79"><a href="#cb24-79" tabindex="-1"></a>    </span>
+<span id="cb24-80"><a href="#cb24-80" tabindex="-1"></a>  })</span>
+<span id="cb24-81"><a href="#cb24-81" tabindex="-1"></a>  </span>
+<span id="cb24-82"><a href="#cb24-82" tabindex="-1"></a>  <span class="co"># generate table of DEG</span></span>
+<span id="cb24-83"><a href="#cb24-83" tabindex="-1"></a>  output<span class="sc">$</span>top_dge <span class="ot">&lt;-</span> <span class="fu">renderDT</span>({</span>
+<span id="cb24-84"><a href="#cb24-84" tabindex="-1"></a>    </span>
+<span id="cb24-85"><a href="#cb24-85" tabindex="-1"></a>    df <span class="ot">&lt;-</span> <span class="fu">filter</span>(<span class="fu">contrast</span>(), isSignificant <span class="sc">==</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-86"><a href="#cb24-86" tabindex="-1"></a>      <span class="fu">arrange</span>(adj.P.Val) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-87"><a href="#cb24-87" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">select</span>(SYMBOL, TXCHROM, logFC, adj.P.Val, DE)</span>
+<span id="cb24-88"><a href="#cb24-88" tabindex="-1"></a>    </span>
+<span id="cb24-89"><a href="#cb24-89" tabindex="-1"></a>    <span class="co"># pass table to DT and supply parameters</span></span>
+<span id="cb24-90"><a href="#cb24-90" tabindex="-1"></a>    <span class="fu">datatable</span>(df,</span>
+<span id="cb24-91"><a href="#cb24-91" tabindex="-1"></a>              <span class="at">rownames =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb24-92"><a href="#cb24-92" tabindex="-1"></a>              <span class="at">filter =</span> <span class="st">&quot;top&quot;</span>,</span>
+<span id="cb24-93"><a href="#cb24-93" tabindex="-1"></a>              <span class="at">options =</span> <span class="fu">list</span>(</span>
+<span id="cb24-94"><a href="#cb24-94" tabindex="-1"></a>                <span class="at">pageLength =</span> <span class="dv">10</span>,</span>
+<span id="cb24-95"><a href="#cb24-95" tabindex="-1"></a>                <span class="at">lengthChange =</span> <span class="cn">FALSE</span></span>
+<span id="cb24-96"><a href="#cb24-96" tabindex="-1"></a>              ))</span>
+<span id="cb24-97"><a href="#cb24-97" tabindex="-1"></a>    </span>
+<span id="cb24-98"><a href="#cb24-98" tabindex="-1"></a>  })</span>
+<span id="cb24-99"><a href="#cb24-99" tabindex="-1"></a>  </span>
+<span id="cb24-100"><a href="#cb24-100" tabindex="-1"></a>  <span class="co"># generate box-plot</span></span>
+<span id="cb24-101"><a href="#cb24-101" tabindex="-1"></a>  output<span class="sc">$</span>boxplot <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>({</span>
+<span id="cb24-102"><a href="#cb24-102" tabindex="-1"></a>    </span>
+<span id="cb24-103"><a href="#cb24-103" tabindex="-1"></a>    <span class="fu">filter</span>(deg_long, Gene <span class="sc">==</span> input<span class="sc">$</span>gene) <span class="sc">%&gt;%</span> </span>
+<span id="cb24-104"><a href="#cb24-104" tabindex="-1"></a>      <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> Group, <span class="at">y =</span> Expression)) <span class="sc">+</span> </span>
+<span id="cb24-105"><a href="#cb24-105" tabindex="-1"></a>      <span class="fu">geom_boxplot</span>() <span class="sc">+</span> </span>
+<span id="cb24-106"><a href="#cb24-106" tabindex="-1"></a>      <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">5</span>, <span class="dv">15</span>)) <span class="sc">+</span> </span>
+<span id="cb24-107"><a href="#cb24-107" tabindex="-1"></a>      <span class="fu">geom_jitter</span>(<span class="fu">aes</span>(<span class="at">colour =</span> Group)) <span class="sc">+</span> </span>
+<span id="cb24-108"><a href="#cb24-108" tabindex="-1"></a>      <span class="fu">theme_bw</span>() <span class="sc">+</span> </span>
+<span id="cb24-109"><a href="#cb24-109" tabindex="-1"></a>      <span class="fu">theme</span>(<span class="at">axis.text =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>),</span>
+<span id="cb24-110"><a href="#cb24-110" tabindex="-1"></a>            <span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">&quot;bold&quot;</span>),</span>
+<span id="cb24-111"><a href="#cb24-111" tabindex="-1"></a>            <span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb24-112"><a href="#cb24-112" tabindex="-1"></a>      <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">&quot;Cell Type&quot;</span>, <span class="at">y=</span><span class="fu">expression</span>(<span class="st">&quot;Counts per million (log&quot;</span>[<span class="dv">2</span>]<span class="sc">*</span><span class="st">&quot;)&quot;</span>))</span>
+<span id="cb24-113"><a href="#cb24-113" tabindex="-1"></a>    </span>
+<span id="cb24-114"><a href="#cb24-114" tabindex="-1"></a>  })</span>
+<span id="cb24-115"><a href="#cb24-115" tabindex="-1"></a>  </span>
+<span id="cb24-116"><a href="#cb24-116" tabindex="-1"></a>  <span class="co"># generate interactive heatmap</span></span>
+<span id="cb24-117"><a href="#cb24-117" tabindex="-1"></a>  output<span class="sc">$</span>heatmap <span class="ot">&lt;-</span> <span class="fu">renderPlotly</span>({</span>
+<span id="cb24-118"><a href="#cb24-118" tabindex="-1"></a>    <span class="fu">heatmaply</span>(</span>
+<span id="cb24-119"><a href="#cb24-119" tabindex="-1"></a>      deg_matrix,</span>
+<span id="cb24-120"><a href="#cb24-120" tabindex="-1"></a>      <span class="at">fontsize_row =</span> <span class="dv">8</span>,</span>
+<span id="cb24-121"><a href="#cb24-121" tabindex="-1"></a>      <span class="at">fontsize_col =</span> <span class="dv">12</span>,</span>
+<span id="cb24-122"><a href="#cb24-122" tabindex="-1"></a>      <span class="at">height =</span> <span class="dv">900</span></span>
+<span id="cb24-123"><a href="#cb24-123" tabindex="-1"></a>    )</span>
+<span id="cb24-124"><a href="#cb24-124" tabindex="-1"></a>  })</span>
+<span id="cb24-125"><a href="#cb24-125" tabindex="-1"></a>  </span>
+<span id="cb24-126"><a href="#cb24-126" tabindex="-1"></a>}</span>
+<span id="cb24-127"><a href="#cb24-127" tabindex="-1"></a></span>
+<span id="cb24-128"><a href="#cb24-128" tabindex="-1"></a><span class="co"># Run the application </span></span>
+<span id="cb24-129"><a href="#cb24-129" tabindex="-1"></a><span class="fu">shinyApp</span>(<span class="at">ui =</span> ui, <span class="at">server =</span> server)</span></code></pre></div>
+</div>
+</div>
+<div id="how-to-run-the-app" class="section level1">
+<h1>How to Run the App</h1>
+<p>To run the app:</p>
+<ol style="list-style-type: decimal">
+<li>Create a new R script or RMarkdown file</li>
+<li>Copy the complete code from above</li>
+<li>Save the file with a name like “interactive_dgeVis_app.R” or
+“app.R”</li>
+<li>Click the “Run App” button in RStudio (or use
+<code>shiny::runApp()</code> in the console)</li>
+</ol>
+</div>
+<div id="key-shiny-concepts-to-understand" class="section level1">
+<h1>Key Shiny Concepts to Understand</h1>
+<div id="interactive-outputs" class="section level2">
+<h2>Interactive Outputs</h2>
+<p>Including interactive tables and visualisations adds value to your
+apps, making complex data analyses more accessible, interpretable, and
+actionable for end users. Remember:</p>
+<ul>
+<li>Use <code>plotlyOutput()</code> in the UI and
+<code>renderPlotly()</code> in the server to create interactive plots,
+enabling features like zooming, hovering, and dynamic tooltips.<br />
+</li>
+<li>Use <code>DTOutput()</code> in the UI and <code>renderDT()</code> in
+the server to display interactive, sortable, and filterable data tables
+with the <code>DT</code> package.<br />
+</li>
+<li>Use <code>heatmaply()</code> directly in the server to generate
+interactive heatmaps, and pair it with <code>plotlyOutput()</code> and
+<code>renderPlotly()</code> for display, leveraging Plotly’s
+interactivity for complex matrix data.<br />
+</li>
+<li>Customize interactivity and appearance by passing additional
+arguments to <code>plotly::ggplotly()</code>,
+<code>DT::datatable()</code>, and <code>heatmaply()</code>, allowing
+users to explore and analyze data more effectively.</li>
+</ul>
+</div>
+</div>
+<div id="challenge-exercises" class="section level1">
+<h1>Challenge Exercises</h1>
+<p>Now that you understand the basics, try these exercises to extend the
+app:</p>
+<ol style="list-style-type: decimal">
+<li>Use <code>plotly</code> to create interactive box-plots and explore
+the results.</li>
+<li>Edit the <code>DT</code> data table to:
+<ol style="list-style-type: lower-alpha">
+<li>Add a table caption.<br />
+</li>
+<li>Disable/remove the global search bar above the table.<br />
+</li>
+<li>Set custom column names.<br />
+</li>
+</ol></li>
+<li>Use <code>?heatmaply()</code> to explore additional customization
+for the interactive heatmap. Try changing the plot colours, removing the
+dendogram etc.</li>
+<li>Explore the R package <a
+href="https://ggvis.rstudio.com/ggvis-basics.html">ggvis</a>. How might
+these interactive plots be useful?</li>
+</ol>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>In this tutorial, you’ve learned:</p>
+<ol style="list-style-type: decimal">
+<li>How to structure an app to have multiple tabs.</li>
+<li>How to convert static tables into interactive tables with
+<code>DT</code>.</li>
+<li>How to convert static ggplots into interactive plots with
+<code>plotly</code> and <code>ggplotly</code>.</li>
+<li>How to create interactive heatmaps with <code>heatmaply</code>.</li>
+</ol>
+<p>By incorporating interactive tables and plots into your Shiny app,
+you significantly enhance the user experience and the value of your data
+analysis. With these features, your applications become not just static
+reports but responsive, user-driven tools for data analysis and
+visualization, empowering users to gain deeper insights and make more
+informed decisions.</p>
+</div>
+<div id="resources-for-further-learning" class="section level1">
+<h1>Resources for Further Learning</h1>
+<ul>
+<li><a
+href="https://bioconductor.org/packages/release/workflows/vignettes/RNAseq123/inst/doc/limmaWorkflow.html">RNA-seq
+analysis is easy as 1-2-3 with limma, Glimma and edgeR</a></li>
+<li><a href="https://rstudio.github.io/DT/shiny.html">Using DT in
+Shiny</a></li>
+<li><a href="https://plotly.com/ggplot2/getting-started/">Getting
+Started with Plotly in ggplot2</a></li>
+<li><a
+href="https://talgalili.github.io/heatmaply/articles/heatmaply.html">Introduction
+to heatmaply</a></li>
+</ul>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

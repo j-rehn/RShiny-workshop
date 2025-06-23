@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Jacqueline Rehn" />
+
+
+<title>Reactivity in Shiny</title>
+
+<script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  background-color: #f8f8f8; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ef2929; } /* Alert */
+code span.an { color: #8f5902; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #204a87; } /* Attribute */
+code span.bn { color: #0000cf; } /* BaseN */
+code span.cf { color: #204a87; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4e9a06; } /* Char */
+code span.cn { color: #8f5902; } /* Constant */
+code span.co { color: #8f5902; font-style: italic; } /* Comment */
+code span.cv { color: #8f5902; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #8f5902; font-weight: bold; font-style: italic; } /* Documentation */
+code span.dt { color: #204a87; } /* DataType */
+code span.dv { color: #0000cf; } /* DecVal */
+code span.er { color: #a40000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #0000cf; } /* Float */
+code span.fu { color: #204a87; font-weight: bold; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #8f5902; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #204a87; font-weight: bold; } /* Keyword */
+code span.op { color: #ce5c00; font-weight: bold; } /* Operator */
+code span.ot { color: #8f5902; } /* Other */
+code span.pp { color: #8f5902; font-style: italic; } /* Preprocessor */
+code span.sc { color: #ce5c00; font-weight: bold; } /* SpecialChar */
+code span.ss { color: #4e9a06; } /* SpecialString */
+code span.st { color: #4e9a06; } /* String */
+code span.va { color: #000000; } /* Variable */
+code span.vs { color: #4e9a06; } /* VerbatimString */
+code span.wa { color: #8f5902; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-inverse  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">RShiny Workshop (COMBINE)</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="./gettingstarted.html">Getting Started</a>
+</li>
+<li>
+  <a href="./workshop-overview.html">Introduction</a>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Tutorials
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="./02_birthday_app.html">02 Birthday App</a>
+    </li>
+    <li>
+      <a href="./03_shiny_reactivity.html">03 Reactivity</a>
+    </li>
+    <li>
+      <a href="./04_interactive_outputs.html">04 Interactive Outputs</a>
+    </li>
+    <li>
+      <a href="./05_shiny_modules.html">05 Shiny Modules</a>
+    </li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Reactivity in Shiny</h1>
+<h4 class="author">Jacqueline Rehn</h4>
+
+</div>
+
+
+<div id="what-is-reactivity" class="section level1">
+<h1>What is Reactivity?</h1>
+<p>Reactivity in R Shiny is the system that enables your app to
+automatically update outputs when user inputs change, creating dynamic
+and interactive web applications. Instead of manually specifying when
+code should run, you declare relationships between inputs, computations,
+and outputs, and Shiny manages when and how updates occur. This
+includes:</p>
+<ul>
+<li><p><strong>Automatic Dependency Tracking</strong>: Shiny tracks
+which outputs depend on which inputs and computations. When an input
+changes, only the affected outputs are updated.</p></li>
+<li><p><strong>Lazy Evaluation and Caching</strong>: Reactive
+expressions only run when needed and cache their results. They
+recalculate only if their dependencies (inputs or other reactives)
+change, improving efficiency.</p></li>
+</ul>
+<div id="core-components-of-reactivity" class="section level3">
+<h3>Core Components of Reactivity</h3>
+<ul>
+<li><p><strong>Reactive Inputs</strong>: User interface elements (e.g.,
+sliders, text boxes) that users interact with.</p></li>
+<li><p><strong>Reactive Expressions</strong>: Use the
+<code>reactive()</code> or <code>observe()</code> functions to process
+or transform inputs. The <code>reactive()</code> function can also
+return values that can be used by multiple outputs, recalculating only
+when their dependencies change.</p></li>
+<li><p><strong>Reactive Outputs</strong>: Use <code>render*()</code>
+functions (like <code>renderPlot()</code>, <code>renderText()</code>) to
+display results in the UI. They automatically update when their
+dependencies (inputs or reactive expressions) change.</p></li>
+</ul>
+<p>All inputs are automatically reactive and therefore must be accessed
+inside reactive contexts (i.e., inside <code>reactive()</code>,
+<code>render*()</code>, or <code>observe()</code> functions). Accessing
+inputs outside these environments will not work, as Shiny can only track
+dependencies within reactive scopes.</p>
+</div>
+<div id="key-guidelines" class="section level3">
+<h3>Key Guidelines</h3>
+<p>Only call inputs and reactive expressions inside reactive
+environments (<code>reactive()</code>, <code>render*()</code>, or
+<code>observe()</code>). This ensures Shiny can track dependencies and
+update outputs correctly.</p>
+<p>Use <code>render*()</code> for outputs that display results in the
+UI.<br />
+Use <code>reactive()</code> for computations that return values and are
+used in multiple places.<br />
+Use <code>observe()</code> for side effects (actions that don’t return
+values, like updating UI elements).</p>
+</div>
+</div>
+<div id="building-our-us-holiday-app-step-by-step"
+class="section level1">
+<h1>Building Our US Holiday App Step by Step</h1>
+<p>To better understand reactivity, we will build an app called US
+holiday which includes several reactive elements.</p>
+<div id="step-1-review-the-data" class="section level2">
+<h2>Step 1: Review the data</h2>
+<p>First, let’s have a look at the data:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># load required libraries</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(DT)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co"># import data</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>flights <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">&quot;data/flight_data.csv&quot;</span>))</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="fu">head</span>(flights)</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="fu">glimpse</span>(flights)</span></code></pre></div>
+<p>The data provided represents flights from New York City to airports
+across the US for the next twelve months (Data extracted and modified
+from the R data package <code>nycflights13</code>).</p>
+<p>We will use this data to plan a holiday starting in NY and flying to
+your preferred destination. Our app will contain a summary plot
+representing the number of available flights to your state of choice and
+a table listing possible flights for your selected holiday.</p>
+</div>
+<div id="step-2-create-initial-user-interface" class="section level2">
+<h2>Step 2: Create Initial User Interface</h2>
+<p>Let’s create the user interface with some initial input controls to
+subset the flight data by date range and State. We will also add a plot
+and table element for displaying results.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="fu">titlePanel</span>(<span class="st">&quot;US Holiday&quot;</span>),</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  </span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="fu">sidebarLayout</span>(</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>    <span class="fu">sidebarPanel</span>(</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>      <span class="co"># input dates</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>      <span class="fu">dateRangeInput</span>(<span class="st">&quot;daterange&quot;</span>, <span class="st">&quot;Date range:&quot;</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>                     <span class="at">start =</span> <span class="st">&quot;2025-07-01&quot;</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>                     <span class="at">end   =</span> <span class="st">&quot;2026-06-30&quot;</span>),</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>      <span class="co"># select destination state</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>      <span class="fu">selectInput</span>(<span class="st">&quot;state&quot;</span>, <span class="st">&quot;State&quot;</span>, <span class="at">choices =</span> <span class="fu">unique</span>(flights<span class="sc">$</span>State))</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>    ),</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>    </span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>    <span class="fu">mainPanel</span>(</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>      <span class="co"># display flight summary plot</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>      <span class="fu">plotOutput</span>(<span class="st">&quot;destOverview&quot;</span>),</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>      <span class="co"># display flight options</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>      <span class="fu">dataTableOutput</span>(<span class="st">&quot;table&quot;</span>)</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>    )</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>  )</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>  </span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>)</span></code></pre></div>
+<p>Let’s break down the input controls and output elements:</p>
+<ol style="list-style-type: decimal">
+<li><p><code>dateRangeInput("daterange", "Date range:", start = "2025-07-01", end = "2026-06-30")</code>:
+Creates two calendar widgets with dates from today to next year.</p>
+<ul>
+<li><code>"daterange"</code> is the input ID</li>
+<li><code>"Date range:"</code> is the label shown next to the input in
+the UI<br />
+</li>
+<li><code>start = "2025-07-01"</code> sets the default start date to
+July 1 2025</li>
+<li><code>end   = "2026-06-30"</code> sets the default end date to June
+30 2026<br />
+</li>
+<li>Data Format: <code>input$daterange</code> is a vector of length 2.
+First element of vector is start date. Second element is end date. Both
+values are strings in “yyyy-mm-dd” format, unless otherwise specified by
+the format argument.</li>
+</ul></li>
+<li><p><code>selectInput("state", "State", choices = unique(flights$State))</code>
+: Creates a drop down list of possible States to fly to.</p>
+<ul>
+<li><code>"state"</code> is the input ID<br />
+</li>
+<li><code>"State"</code> is the label shown next to the input in the
+UI.</li>
+<li><code>choices = unique(flights$State)</code> generates the list of
+options to display. By using <code>unique(flights$State)</code> this can
+be determined from the data directly as opposed to manually generating a
+complete list.</li>
+</ul></li>
+<li><p><code>plotOutput("destOverview")</code> : Creates a placeholder
+in the UI for a plot output, which will be rendered by the server
+function using <code>renderPlot()</code> with the output ID
+<code>"destOverview"</code>.</p></li>
+<li><p><code>dataTableOutput("table")</code> : Creates a placeholder for
+an interactive data table, which is rendered by the server using
+<code>renderDataTable()</code> with the output ID “table”.</p></li>
+</ol>
+</div>
+<div id="step-3-adding-server-logic" class="section level2">
+<h2>Step 3: Adding Server Logic</h2>
+<div id="using-ui-input-directly" class="section level3">
+<h3>Using UI input directly</h3>
+<p>Let’s start building the server logic. For our first attempt we will
+write code in a similar style used when writing an R script.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  </span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="co"># filter data according to selections</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">filter</span>(flights, </span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>           date <span class="sc">&gt;=</span> input<span class="sc">$</span>daterange[<span class="dv">1</span>],</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>           date <span class="sc">&lt;=</span> input<span class="sc">$</span>daterange[<span class="dv">2</span>],</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>           State <span class="sc">==</span> input<span class="sc">$</span>state)</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  </span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>  <span class="co"># generate plot</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  output<span class="sc">$</span>destOverview <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>({</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>    </span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>    df <span class="sc">%&gt;%</span> </span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>      <span class="co"># count number flights to each destination</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">count</span>(dest) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>      <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> dest, <span class="at">y =</span> n, <span class="at">fill =</span> dest)) <span class="sc">+</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a>        <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a>        <span class="fu">geom_label</span>(<span class="fu">aes</span>(<span class="at">label =</span> n), <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.2</span>, <span class="at">label.size =</span> <span class="cn">NA</span>, <span class="at">fill =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a>        <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">&quot;Paired&quot;</span>) <span class="sc">+</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a>        <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a>        <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="dv">1</span>),</span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a>              <span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>)</span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a>    </span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a>  })</span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a>  </span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a>}</span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a></span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
+<p>Let’s break down the steps:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Initial data processing</strong>:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">filter</span>(flights, </span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>        date <span class="sc">&gt;=</span> input<span class="sc">$</span>daterange[<span class="dv">1</span>],</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>        date <span class="sc">&lt;=</span> input<span class="sc">$</span>daterange[<span class="dv">2</span>],</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>        State <span class="sc">==</span> input<span class="sc">$</span>state)</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="er">})</span></span></code></pre></div></li>
+</ol>
+<ul>
+<li>The <code>filter()</code> function from the dplyr package is used to
+subset the flights data frame.</li>
+<li><code>date &gt;= input$daterange[1]</code> and
+<code>date &lt;= input$daterange</code>: Filters rows so that only
+flights within the user-selected date range are included.</li>
+<li><code>State == input$state</code>: Filters rows to include only
+those matching the user’s selected state</li>
+</ul>
+<ol start="2" style="list-style-type: decimal">
+<li><p><strong>Generate summary plot</strong></p>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>output<span class="sc">$</span>destOverview <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>({</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a> df <span class="sc">%&gt;%</span> </span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>   <span class="co"># count number flights to each destination</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>   dplyr<span class="sc">::</span><span class="fu">count</span>(dest) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>   <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> dest, <span class="at">y =</span> n, <span class="at">fill =</span> dest)) <span class="sc">+</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>   <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>   <span class="fu">geom_label</span>(<span class="fu">aes</span>(<span class="at">label =</span> n), <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.2</span>, <span class="at">label.size =</span> <span class="cn">NA</span>, <span class="at">fill =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>   <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">&quot;Paired&quot;</span>) <span class="sc">+</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>   <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>   <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="dv">1</span>),</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>         <span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>})</span></code></pre></div></li>
+</ol>
+<ul>
+<li><code>output$destOverview &lt;- renderPlot({ ... })</code> : defines
+a plot output for the Shiny UI with the ID “destOverview”. The
+<code>renderPlot()</code> function is a reactive context that updates
+the plot whenever its dependencies (here, <code>df()</code>)
+change.</li>
+<li><code>dplyr::count(dest)</code> : This function counts the number of
+flights for each unique destination (dest) in the filtered data. It
+returns a summary table with columns for <code>dest</code> and
+<code>n</code> (the count).</li>
+<li><code>ggplot(aes(x = dest, y = n, fill = dest)) + ...</code> : Code
+chunk to generate ggplot.</li>
+</ul>
+<p><strong>What happens if we attempt to run the app?</strong></p>
+<p>To test this you can paste the server code (along with the above data
+import and UI code chunks) into a new R script and try running the app.
+Alternatively, open <code>example_apps/03a_reactivity.R</code> and click
+run app.</p>
+<p>If you attempt to run the app using the server logic above you get an
+error in the filter command caused by <code>input$daterange</code> and a
+reminder that you can’t access reactive values like
+<code>daterange</code> outside of reactive consumers. The purpose of
+this is to highlight the difference between performing functions in R vs
+R Shiny, and to highlight the importance of keeping track of
+<strong>reactive</strong> elements and only calling them within
+<strong>reactive containers</strong>.</p>
+<p>So how can we fix our broken app?</p>
+</div>
+<div id="render-functions" class="section level3">
+<h3>render*() functions</h3>
+<p>The obvious solution to the above error is to move the code
+performing the filtering step so that it appears within the
+<code>renderPlot()</code> reactive environment.</p>
+<p>We provide an example of what this looks like below. To test if it
+works, replace your previous server code with the code below, or open
+and run <code>example_apps/03b_reactivy.R</code>.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  </span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="co"># generate plot</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  output<span class="sc">$</span>destOverview <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>({</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>    </span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>    <span class="co"># filter data according to selections</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>    df <span class="ot">&lt;-</span> <span class="fu">filter</span>(flights, </span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>                 date <span class="sc">&gt;=</span> input<span class="sc">$</span>daterange[<span class="dv">1</span>],</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>                 date <span class="sc">&lt;=</span> input<span class="sc">$</span>daterange[<span class="dv">2</span>],</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>                 State <span class="sc">==</span> input<span class="sc">$</span>state)</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>    </span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>    df <span class="sc">%&gt;%</span> </span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>      <span class="co"># count number flights to each destination</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">count</span>(dest) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>      <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> dest, <span class="at">y =</span> n, <span class="at">fill =</span> dest)) <span class="sc">+</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>        <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>        <span class="fu">geom_label</span>(<span class="fu">aes</span>(<span class="at">label =</span> n), <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.2</span>, <span class="at">label.size =</span> <span class="cn">NA</span>, <span class="at">fill =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>        <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">&quot;Paired&quot;</span>) <span class="sc">+</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a>        <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>        <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="dv">1</span>),</span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a>              <span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>)</span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a>    </span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a>  })</span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a>  </span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a>}</span></code></pre></div>
+<p>If you make the above adjustments and re-run the app, you now see
+that the app correctly generates a plot summarising the number of
+available flights according to the selected user inputs.</p>
+<p>The next step would be to add code to the server for gerating our
+table listing possible flights. This could be done in a similar fashion
+as above using <code>renderDataTable()</code>. For example:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  </span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="co"># generate plot</span></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  output<span class="sc">$</span>destOverview <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>({</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>    </span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>    <span class="co"># filter data according to selections</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>    df <span class="ot">&lt;-</span> <span class="fu">filter</span>(flights, </span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>                 date <span class="sc">&gt;=</span> input<span class="sc">$</span>daterange[<span class="dv">1</span>],</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>                 date <span class="sc">&lt;=</span> input<span class="sc">$</span>daterange[<span class="dv">2</span>],</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>                 State <span class="sc">==</span> input<span class="sc">$</span>state)</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>    </span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>    df <span class="sc">%&gt;%</span> </span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>      <span class="co"># count number flights to each destination</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">count</span>(dest) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>      <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> dest, <span class="at">y =</span> n, <span class="at">fill =</span> dest)) <span class="sc">+</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>        <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>        <span class="fu">geom_label</span>(<span class="fu">aes</span>(<span class="at">label =</span> n), <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.2</span>, <span class="at">label.size =</span> <span class="cn">NA</span>, <span class="at">fill =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a>        <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">&quot;Paired&quot;</span>) <span class="sc">+</span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a>        <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a>        <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="dv">1</span>),</span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a>              <span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>)</span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a>    </span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a>  })</span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a>  </span>
+<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a>  <span class="co"># generate table of potential flights</span></span>
+<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a>  output<span class="sc">$</span>table <span class="ot">&lt;-</span> <span class="fu">renderDataTable</span>({</span>
+<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a>    </span>
+<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a>    <span class="co"># filter data according to selections</span></span>
+<span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a>    df <span class="ot">&lt;-</span> <span class="fu">filter</span>(flights, </span>
+<span id="cb7-30"><a href="#cb7-30" tabindex="-1"></a>                 date <span class="sc">&gt;=</span> input<span class="sc">$</span>daterange[<span class="dv">1</span>],</span>
+<span id="cb7-31"><a href="#cb7-31" tabindex="-1"></a>                 date <span class="sc">&lt;=</span> input<span class="sc">$</span>daterange[<span class="dv">2</span>],</span>
+<span id="cb7-32"><a href="#cb7-32" tabindex="-1"></a>                 State <span class="sc">==</span> input<span class="sc">$</span>state)</span>
+<span id="cb7-33"><a href="#cb7-33" tabindex="-1"></a>    <span class="co"># format table for display</span></span>
+<span id="cb7-34"><a href="#cb7-34" tabindex="-1"></a>      <span class="fu">mutate_if</span>(df, is.Date,<span class="sc">~</span><span class="fu">format</span>(.,<span class="st">&quot;%d-%m-%Y&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-35"><a href="#cb7-35" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">select</span>(origin, dest, date, depart, arrive, carrier)</span>
+<span id="cb7-36"><a href="#cb7-36" tabindex="-1"></a>    </span>
+<span id="cb7-37"><a href="#cb7-37" tabindex="-1"></a>  })</span>
+<span id="cb7-38"><a href="#cb7-38" tabindex="-1"></a>  </span>
+<span id="cb7-39"><a href="#cb7-39" tabindex="-1"></a>}</span></code></pre></div>
+<p>To test if it works, replace your previous server code with the code
+below, or open and run <code>example_apps/03c_reactivy.R</code>.</p>
+<p>Again, the app works and we now have both a summary plot and
+searchable table with flights based on user selected dates and State
+selections. <strong>However</strong>, we have duplicated the code for
+filtering the original data within each <code>render*()</code>
+function.</p>
+<p>To avoid duplicating code as we have done above, we can shift the
+filtering step so that it occurs inside <code>reactive()</code>.</p>
+</div>
+<div id="reactive" class="section level3">
+<h3>reactive()</h3>
+<p>The <code>reactive()</code> function differs from
+<code>render*()</code> functions in that it is designed for data
+processing to compute values that you want to reuse.</p>
+<ul>
+<li><strong>Purpose</strong>: Compute values that depend on inputs and
+may be used in multiple places.<br />
+</li>
+<li><strong>How Used</strong>: You wrap code inside
+<code>reactive()</code> to create a reactive expression that returns a
+value (like a filtered dataset or a calculation).<br />
+</li>
+<li><strong>Behavior</strong>: The code inside only runs when needed
+(lazy evaluation), and the result is cached until dependencies change.
+You call the result like a function (e.g., <code>myData()</code>).</li>
+</ul>
+<p>The key points to remember are that the results of
+<code>reactive()</code> are assigned to a reactive variable, and in
+order to use that variable within another <code>render*()</code> or
+<code>reactive()</code> container you must call the object with
+parenthesis afterwards (e.g. <code>df()</code> not <code>df</code>).</p>
+<p>Let’s see an example with our US holiday app:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  </span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="co"># filter data according to selections</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>    <span class="fu">filter</span>(flights, </span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>           date <span class="sc">&gt;=</span> input<span class="sc">$</span>daterange[<span class="dv">1</span>],</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>           date <span class="sc">&lt;=</span> input<span class="sc">$</span>daterange[<span class="dv">2</span>],</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>           State <span class="sc">==</span> input<span class="sc">$</span>state)</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>    })</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>  </span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>  <span class="co"># generate plot</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>  output<span class="sc">$</span>destOverview <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>({</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>    </span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a>    <span class="fu">df</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a>      <span class="co"># count number flights to each destination</span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">count</span>(dest) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a>      <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> dest, <span class="at">y =</span> n, <span class="at">fill =</span> dest)) <span class="sc">+</span></span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a>        <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a>        <span class="fu">geom_label</span>(<span class="fu">aes</span>(<span class="at">label =</span> n), <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.2</span>, <span class="at">label.size =</span> <span class="cn">NA</span>, <span class="at">fill =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a>        <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">&quot;Paired&quot;</span>) <span class="sc">+</span></span>
+<span id="cb8-21"><a href="#cb8-21" tabindex="-1"></a>        <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb8-22"><a href="#cb8-22" tabindex="-1"></a>        <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="dv">1</span>),</span>
+<span id="cb8-23"><a href="#cb8-23" tabindex="-1"></a>              <span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>)</span>
+<span id="cb8-24"><a href="#cb8-24" tabindex="-1"></a>    </span>
+<span id="cb8-25"><a href="#cb8-25" tabindex="-1"></a>  })</span>
+<span id="cb8-26"><a href="#cb8-26" tabindex="-1"></a>  </span>
+<span id="cb8-27"><a href="#cb8-27" tabindex="-1"></a>  <span class="co"># generate table of potential flights</span></span>
+<span id="cb8-28"><a href="#cb8-28" tabindex="-1"></a>  output<span class="sc">$</span>table <span class="ot">&lt;-</span> <span class="fu">renderDataTable</span>({</span>
+<span id="cb8-29"><a href="#cb8-29" tabindex="-1"></a>    </span>
+<span id="cb8-30"><a href="#cb8-30" tabindex="-1"></a>    <span class="co"># format table for display</span></span>
+<span id="cb8-31"><a href="#cb8-31" tabindex="-1"></a>      <span class="fu">mutate_if</span>(<span class="fu">df</span>(), is.Date,<span class="sc">~</span><span class="fu">format</span>(.,<span class="st">&quot;%d-%m-%Y&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-32"><a href="#cb8-32" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">select</span>(origin, dest, date, depart, arrive, carrier)</span>
+<span id="cb8-33"><a href="#cb8-33" tabindex="-1"></a>    </span>
+<span id="cb8-34"><a href="#cb8-34" tabindex="-1"></a>  })</span>
+<span id="cb8-35"><a href="#cb8-35" tabindex="-1"></a>  </span>
+<span id="cb8-36"><a href="#cb8-36" tabindex="-1"></a>}</span></code></pre></div>
+<p>Let’s break down the changes to the server logic:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Initial data processing</strong>:</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a> <span class="fu">filter</span>(flights, </span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>        date <span class="sc">&gt;=</span> input<span class="sc">$</span>daterange[<span class="dv">1</span>],</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>        date <span class="sc">&lt;=</span> input<span class="sc">$</span>daterange[<span class="dv">2</span>],</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>        State <span class="sc">==</span> input<span class="sc">$</span>state)</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>})</span></code></pre></div></li>
+</ol>
+<ul>
+<li><code>reactive({ ... })</code> creates a reactive expression in
+Shiny. Code inside <code>reactive()</code> is only executed when one of
+its dependencies (here, <code>input$daterange</code> or
+<code>input$state</code>) changes.<br />
+</li>
+<li><code>df &lt;- reactive({...})</code> Assigns the reactive
+expression to the variable df. This means <code>df</code> is now a
+reactive variable—you must call it as <code>df()</code> (with
+parentheses) when you want to access the filtered data elsewhere in your
+server code.<br />
+</li>
+<li>The <code>filter()</code> function from the dplyr package is used to
+subset the flights data frame.</li>
+<li><code>date &gt;= input$daterange[1]</code> and
+<code>date &lt;= input$daterange</code>: Filters rows so that only
+flights within the user-selected date range are included.<br />
+</li>
+<li><code>State == input$state</code>: Filters rows to include only
+those matching the user’s selected state.</li>
+</ul>
+<ol start="2" style="list-style-type: decimal">
+<li><strong>Use reactive variable</strong></li>
+</ol>
+<ul>
+<li>Inside both <code>render*()</code> functions we have the reactive
+variable <code>df()</code></li>
+<li>This is the filtered data frame based on user input. The parentheses
+are necessary to access the current value of the reactive expression.
+Any changes in the inputs used to create <code>df()</code> will
+automatically trigger the plot to update.</li>
+</ul>
+<p>To test if it works, replace your previous server code with the code
+above, or open and run <code>example_apps/03d_reactivy.R</code>.</p>
+<p>This app (<code>03d_reactivity</code>) functions the same as the
+previous app but is easier to follow. Rather than duplicate code we have
+performed the initial filtering within <code>reactive()</code> and
+assigned the results to <code>df()</code>. The resulting reactive value
+<code>df()</code> can then be used in multiple places - here within both
+<code>renderPlot()</code> and <code>renderDataTable()</code>.</p>
+</div>
+<div id="observe" class="section level3">
+<h3>observe()</h3>
+<p>The final type of reactive container is <code>observe()</code>. This
+is used to perform an action that is not tied to a display output for
+the user interface (i.e not <code>render*()</code>) and where the
+results of the action won’t be needed by other functions in the
+server.</p>
+<ul>
+<li><strong>Purpose</strong>: Perform actions or side effects in
+response to changes, such as updating UI elements or saving files.<br />
+</li>
+<li><strong>How Used</strong>: You wrap code in <code>observe()</code>
+when you want something to happen (not return a value) whenever certain
+inputs or reactives change.<br />
+</li>
+<li><strong>Behavior</strong>: The code runs immediately when
+dependencies change (eager evaluation), but does not return a value and
+cannot be used as input elsewhere.</li>
+</ul>
+<p><code>Observe()</code> is often linked to actions like saving or
+downloading data. However, it can also be used to update user interface
+variables to create a dynamic UI.</p>
+<p>What do we mean by this? Generally, the UI is created when the app
+starts, and it cannot be changed. For example, our list of US States to
+fly to doesn’t alter, even when the dates are changed. But what if we
+added a new user input for selecting the city to fly to? And we wanted
+the list of possible cities to update based on the State the user
+selected? This would be an example of a dynamic UI and is possible by
+combining <code>reactive()</code>, <code>observeEvent()</code> and
+<code>updateSelectInput()</code>.</p>
+<p>Let’s look at the code needed to create this a dynamic user interface
+element.</p>
+</div>
+</div>
+<div id="step-4-update-the-user-interface" class="section level2">
+<h2>Step 4: Update the User Interface</h2>
+<p>We will keep the user interface from our earlier app, and simply add
+another input ‘City’.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="fu">library</span>(DT)</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>flights <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">&quot;data/flight_data.csv&quot;</span>))</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>  <span class="fu">titlePanel</span>(<span class="st">&quot;US Holiday&quot;</span>),</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>  </span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>  <span class="fu">sidebarLayout</span>(</span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>    <span class="fu">sidebarPanel</span>(</span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>      <span class="co"># input dates</span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>      <span class="fu">dateRangeInput</span>(<span class="st">&quot;daterange&quot;</span>, <span class="st">&quot;Date range:&quot;</span>,</span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>                    <span class="at">start =</span> <span class="st">&quot;2025-07-01&quot;</span>,</span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a>                     <span class="at">end   =</span> <span class="st">&quot;2026-06-30&quot;</span>),</span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a>      <span class="co"># select destination state</span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a>      <span class="fu">selectInput</span>(<span class="st">&quot;state&quot;</span>, <span class="st">&quot;State&quot;</span>, <span class="at">choices =</span> <span class="fu">unique</span>(flights<span class="sc">$</span>State)),</span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a>      <span class="co"># select destination city</span></span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a>      <span class="fu">selectInput</span>(<span class="st">&quot;city&quot;</span>, <span class="st">&quot;City&quot;</span>, <span class="at">choices =</span> <span class="cn">NULL</span>)</span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a>    ),</span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a>    </span>
+<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a>    <span class="fu">mainPanel</span>(</span>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a>      <span class="co"># display fligt summary plot</span></span>
+<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a>      <span class="fu">plotOutput</span>(<span class="st">&quot;destOverview&quot;</span>),</span>
+<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a>      <span class="co"># display flight options</span></span>
+<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a>      <span class="fu">dataTableOutput</span>(<span class="st">&quot;table&quot;</span>)</span>
+<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a>    )</span>
+<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a>  )</span>
+<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a>  </span>
+<span id="cb10-31"><a href="#cb10-31" tabindex="-1"></a>)</span></code></pre></div>
+<p>Here the input controls are the same as before, we have simply added
+a new input:</p>
+<ol style="list-style-type: decimal">
+<li><code>selectInput("city", "City", choices = NULL)</code> : Creates a
+drop down list of possible States to fly to.</li>
+</ol>
+<ul>
+<li><code>"city"</code> is the input ID.</li>
+<li><code>"City"</code> is the label shown next to the input in the
+UI.<br />
+</li>
+<li><code>choices = NULL</code> Chices is set to <code>NULL</code> as
+this list will be dynamically generated.</li>
+</ul>
+</div>
+<div id="step-5-extend-the-server-logic" class="section level2">
+<h2>Step 5: Extend the Server Logic</h2>
+<p>Again, we will retain the initial server steps from our example app.
+However, additional steps are added to update the user interface for
+available cities in the chosen state and perform extra filtering of the
+data for the table.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  </span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="co"># filter data according to data/State selections</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>    <span class="fu">filter</span>(flights, </span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>           date <span class="sc">&gt;=</span> input<span class="sc">$</span>daterange[<span class="dv">1</span>],</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>           date <span class="sc">&lt;=</span> input<span class="sc">$</span>daterange[<span class="dv">2</span>],</span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>           State <span class="sc">==</span> input<span class="sc">$</span>state)</span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a>  })</span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>  </span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a>  <span class="co"># generate plot based on selected city</span></span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a>  output<span class="sc">$</span>destOverview <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>({</span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a>    </span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a>    <span class="fu">df</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb11-15"><a href="#cb11-15" tabindex="-1"></a>      <span class="co"># count number flights to each destination</span></span>
+<span id="cb11-16"><a href="#cb11-16" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">count</span>(dest) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-17"><a href="#cb11-17" tabindex="-1"></a>      <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> dest, <span class="at">y =</span> n, <span class="at">fill =</span> dest)) <span class="sc">+</span></span>
+<span id="cb11-18"><a href="#cb11-18" tabindex="-1"></a>      <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb11-19"><a href="#cb11-19" tabindex="-1"></a>      <span class="fu">geom_label</span>(<span class="fu">aes</span>(<span class="at">label =</span> n), <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.2</span>, <span class="at">label.size =</span> <span class="cn">NA</span>, <span class="at">fill =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb11-20"><a href="#cb11-20" tabindex="-1"></a>      <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">&quot;Paired&quot;</span>) <span class="sc">+</span></span>
+<span id="cb11-21"><a href="#cb11-21" tabindex="-1"></a>      <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb11-22"><a href="#cb11-22" tabindex="-1"></a>      <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="dv">1</span>),</span>
+<span id="cb11-23"><a href="#cb11-23" tabindex="-1"></a>            <span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>)</span>
+<span id="cb11-24"><a href="#cb11-24" tabindex="-1"></a>    </span>
+<span id="cb11-25"><a href="#cb11-25" tabindex="-1"></a>  })</span>
+<span id="cb11-26"><a href="#cb11-26" tabindex="-1"></a>  </span>
+<span id="cb11-27"><a href="#cb11-27" tabindex="-1"></a>  <span class="co"># update choices for city based on selected dates/State</span></span>
+<span id="cb11-28"><a href="#cb11-28" tabindex="-1"></a>  <span class="fu">observeEvent</span>(<span class="fu">df</span>(), {</span>
+<span id="cb11-29"><a href="#cb11-29" tabindex="-1"></a>    choices <span class="ot">&lt;-</span> <span class="fu">unique</span>(<span class="fu">df</span>()<span class="sc">$</span>City)</span>
+<span id="cb11-30"><a href="#cb11-30" tabindex="-1"></a>    <span class="fu">updateSelectInput</span>(<span class="at">inputId =</span> <span class="st">&quot;city&quot;</span>, <span class="at">choices =</span> choices)</span>
+<span id="cb11-31"><a href="#cb11-31" tabindex="-1"></a>  })</span>
+<span id="cb11-32"><a href="#cb11-32" tabindex="-1"></a>  </span>
+<span id="cb11-33"><a href="#cb11-33" tabindex="-1"></a>  <span class="co"># additional filtering based on selected city</span></span>
+<span id="cb11-34"><a href="#cb11-34" tabindex="-1"></a>  city <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb11-35"><a href="#cb11-35" tabindex="-1"></a>    <span class="fu">req</span>(input<span class="sc">$</span>city)</span>
+<span id="cb11-36"><a href="#cb11-36" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="fu">df</span>(), City <span class="sc">==</span> input<span class="sc">$</span>city)</span>
+<span id="cb11-37"><a href="#cb11-37" tabindex="-1"></a>  })</span>
+<span id="cb11-38"><a href="#cb11-38" tabindex="-1"></a>  </span>
+<span id="cb11-39"><a href="#cb11-39" tabindex="-1"></a>  <span class="co"># generate table of potential flights</span></span>
+<span id="cb11-40"><a href="#cb11-40" tabindex="-1"></a>  output<span class="sc">$</span>table <span class="ot">&lt;-</span> <span class="fu">renderDataTable</span>({</span>
+<span id="cb11-41"><a href="#cb11-41" tabindex="-1"></a>    </span>
+<span id="cb11-42"><a href="#cb11-42" tabindex="-1"></a>    <span class="fu">req</span>(input<span class="sc">$</span>city)  <span class="co"># Ensure input is available</span></span>
+<span id="cb11-43"><a href="#cb11-43" tabindex="-1"></a>    </span>
+<span id="cb11-44"><a href="#cb11-44" tabindex="-1"></a>    <span class="co"># format table for display</span></span>
+<span id="cb11-45"><a href="#cb11-45" tabindex="-1"></a>    <span class="fu">mutate_if</span>(<span class="fu">city</span>(), is.Date,<span class="sc">~</span><span class="fu">format</span>(.,<span class="st">&quot;%d-%m-%Y&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb11-46"><a href="#cb11-46" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">select</span>(origin, dest, date, depart, arrive, carrier)</span>
+<span id="cb11-47"><a href="#cb11-47" tabindex="-1"></a>    </span>
+<span id="cb11-48"><a href="#cb11-48" tabindex="-1"></a>  })</span>
+<span id="cb11-49"><a href="#cb11-49" tabindex="-1"></a>  </span>
+<span id="cb11-50"><a href="#cb11-50" tabindex="-1"></a>}</span></code></pre></div>
+<p>Let’s break down the new element to the server logic:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Update choices for City</strong></p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">observeEvent</span>(<span class="fu">df</span>(), {</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a> choices <span class="ot">&lt;-</span> <span class="fu">unique</span>(<span class="fu">df</span>()<span class="sc">$</span>City)</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a> <span class="fu">updateSelectInput</span>(<span class="at">inputId =</span> <span class="st">&quot;city&quot;</span>, <span class="at">choices =</span> choices)</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>})</span></code></pre></div></li>
+</ol>
+<ul>
+<li><code>observeEvent(df(), { ... })</code> : This function sets up an
+observer that watches for changes in the reactive expression
+<code>df()</code>. Whenever the filtered data (<code>df()</code>)
+updates (due to user changes in date range, state, or other filters) the
+code inside the observer is triggered.</li>
+<li><code>choices &lt;- unique(df()$City)</code> : This line extracts
+the unique values from the City column of the updated, filtered data. It
+creates a vector of city names currently available in the filtered
+dataset.</li>
+<li><code>updateSelectInput(inputId = "city", choices = choices)</code>
+: This function updates the options available in a select input widget
+(dropdown) with inputId = “city” in the UI. The new choices are set to
+the unique cities found in the filtered data. This ensures that users
+can only select cities relevant to their current filters.</li>
+</ul>
+<ol start="2" style="list-style-type: decimal">
+<li><p><strong>Filter based on City</strong></p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>city <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a> <span class="fu">req</span>(input<span class="sc">$</span>city)</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a> <span class="fu">filter</span>(<span class="fu">df</span>(), City <span class="sc">==</span> input<span class="sc">$</span>city)</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>})</span></code></pre></div></li>
+</ol>
+<ul>
+<li><code>city &lt;- reactive({ ... })</code> : This line defines a
+reactive expression named city. It will return a filtered data frame
+each time its dependencies change. You must use <code>city()</code>
+(with parentheses) to access its value elsewhere in the server
+code.</li>
+<li><code>req(input$city)</code> : The <code>req()</code> function
+ensures that <code>input$city</code> has a value before proceeding. If
+<code>input$city</code> is <code>NULL</code> or empty (e.g., before the
+user has made a selection), the reactive expression will not run
+further. This prevents errors or attempts to filter with a missing
+value.</li>
+<li><code>filter(df(), City == input$city)</code> : This line filters
+the already-filtered flight data (<code>df()</code>, which is itself a
+reactive expression) to include only rows where the City column matches
+the currently selected city from the UI.</li>
+</ul>
+<ol start="3" style="list-style-type: decimal">
+<li><p><strong>Generate table of flight options</strong></p>
+<div class="sourceCode" id="cb14"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>output<span class="sc">$</span>table <span class="ot">&lt;-</span> <span class="fu">renderDataTable</span>({</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a> <span class="fu">req</span>(input<span class="sc">$</span>city)  <span class="co"># Ensure input is available</span></span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a> <span class="co"># format table for display</span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a> <span class="fu">mutate_if</span>(<span class="fu">city</span>(), is.Date,<span class="sc">~</span><span class="fu">format</span>(.,<span class="st">&quot;%d-%m-%Y&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>   dplyr<span class="sc">::</span><span class="fu">select</span>(origin, dest, date, depart, arrive, carrier)</span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a>})</span></code></pre></div></li>
+</ol>
+<ul>
+<li><code>output$table &lt;- renderDataTable({ ... })</code> : This line
+defines a reactive output for the Shiny UI with the ID “table”. The
+<code>renderDataTable()</code> function generates an interactive table,
+which will be displayed wherever <code>dataTableOutput("table")</code>
+is used in the UI.</li>
+<li><code>mutate_if(city(), is.Date, ~format(.,"%d-%m-%Y"))</code> :
+This line applies a formatting function to all columns in the
+<code>city()</code> data frame that are of type Date. It converts date
+values to the “day-month-year” format (“dd-mm-yyyy”) for better
+readability in the table.</li>
+<li><code>dplyr::select(origin, dest, date, depart, arrive, carrier)</code>
+: This selects only the specified columns from the filtered data for
+display in the table. The result is a concise, user-friendly table
+showing the most relevant flight details.</li>
+</ul>
+</div>
+<div id="step-6-putting-it-all-together" class="section level2">
+<h2>Step 6: Putting It All Together</h2>
+<p>Now, let’s put everything together to create our complete Shiny
+app:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="fu">library</span>(DT)</span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co"># import data for app</span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a>flights <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="fu">here</span>(<span class="st">&quot;data/flight_data.csv&quot;</span>))</span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co"># Define UI</span></span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(</span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a>  <span class="fu">titlePanel</span>(<span class="st">&quot;US Holiday&quot;</span>),</span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a>  </span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a>  <span class="fu">sidebarLayout</span>(</span>
+<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a>    <span class="fu">sidebarPanel</span>(</span>
+<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a>      <span class="co"># input dates</span></span>
+<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a>      <span class="fu">dateRangeInput</span>(<span class="st">&quot;daterange&quot;</span>, <span class="st">&quot;Date range:&quot;</span>,</span>
+<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a>                     <span class="at">start =</span> <span class="st">&quot;2025-07-01&quot;</span>,</span>
+<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a>                     <span class="at">end   =</span> <span class="st">&quot;2026-06-30&quot;</span>),</span>
+<span id="cb15-19"><a href="#cb15-19" tabindex="-1"></a>      <span class="co"># select destination state</span></span>
+<span id="cb15-20"><a href="#cb15-20" tabindex="-1"></a>      <span class="fu">selectInput</span>(<span class="st">&quot;state&quot;</span>, <span class="st">&quot;State&quot;</span>, <span class="at">choices =</span> <span class="fu">unique</span>(flights<span class="sc">$</span>State)),</span>
+<span id="cb15-21"><a href="#cb15-21" tabindex="-1"></a>      <span class="co"># select destination city</span></span>
+<span id="cb15-22"><a href="#cb15-22" tabindex="-1"></a>      <span class="fu">selectInput</span>(<span class="st">&quot;city&quot;</span>, <span class="st">&quot;City&quot;</span>, <span class="at">choices =</span> <span class="cn">NULL</span>)</span>
+<span id="cb15-23"><a href="#cb15-23" tabindex="-1"></a>    ),</span>
+<span id="cb15-24"><a href="#cb15-24" tabindex="-1"></a>    </span>
+<span id="cb15-25"><a href="#cb15-25" tabindex="-1"></a>    <span class="fu">mainPanel</span>(</span>
+<span id="cb15-26"><a href="#cb15-26" tabindex="-1"></a>      <span class="co"># display fligt summary plot</span></span>
+<span id="cb15-27"><a href="#cb15-27" tabindex="-1"></a>      <span class="fu">plotOutput</span>(<span class="st">&quot;destOverview&quot;</span>),</span>
+<span id="cb15-28"><a href="#cb15-28" tabindex="-1"></a>      <span class="co"># display flight options</span></span>
+<span id="cb15-29"><a href="#cb15-29" tabindex="-1"></a>      <span class="fu">dataTableOutput</span>(<span class="st">&quot;table&quot;</span>)</span>
+<span id="cb15-30"><a href="#cb15-30" tabindex="-1"></a>    )</span>
+<span id="cb15-31"><a href="#cb15-31" tabindex="-1"></a>  )</span>
+<span id="cb15-32"><a href="#cb15-32" tabindex="-1"></a>  </span>
+<span id="cb15-33"><a href="#cb15-33" tabindex="-1"></a>)</span>
+<span id="cb15-34"><a href="#cb15-34" tabindex="-1"></a></span>
+<span id="cb15-35"><a href="#cb15-35" tabindex="-1"></a><span class="co"># Define server logic</span></span>
+<span id="cb15-36"><a href="#cb15-36" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb15-37"><a href="#cb15-37" tabindex="-1"></a>  </span>
+<span id="cb15-38"><a href="#cb15-38" tabindex="-1"></a>  <span class="co"># filter data according to data/State selections</span></span>
+<span id="cb15-39"><a href="#cb15-39" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb15-40"><a href="#cb15-40" tabindex="-1"></a>    <span class="fu">filter</span>(flights, </span>
+<span id="cb15-41"><a href="#cb15-41" tabindex="-1"></a>           date <span class="sc">&gt;=</span> input<span class="sc">$</span>daterange[<span class="dv">1</span>],</span>
+<span id="cb15-42"><a href="#cb15-42" tabindex="-1"></a>           date <span class="sc">&lt;=</span> input<span class="sc">$</span>daterange[<span class="dv">2</span>],</span>
+<span id="cb15-43"><a href="#cb15-43" tabindex="-1"></a>           State <span class="sc">==</span> input<span class="sc">$</span>state)</span>
+<span id="cb15-44"><a href="#cb15-44" tabindex="-1"></a>  })</span>
+<span id="cb15-45"><a href="#cb15-45" tabindex="-1"></a>  </span>
+<span id="cb15-46"><a href="#cb15-46" tabindex="-1"></a>  <span class="co"># generate plot based on selected city</span></span>
+<span id="cb15-47"><a href="#cb15-47" tabindex="-1"></a>  output<span class="sc">$</span>destOverview <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>({</span>
+<span id="cb15-48"><a href="#cb15-48" tabindex="-1"></a>    </span>
+<span id="cb15-49"><a href="#cb15-49" tabindex="-1"></a>    <span class="fu">df</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb15-50"><a href="#cb15-50" tabindex="-1"></a>      <span class="co"># count number flights to each destination</span></span>
+<span id="cb15-51"><a href="#cb15-51" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">count</span>(dest) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-52"><a href="#cb15-52" tabindex="-1"></a>      <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> dest, <span class="at">y =</span> n, <span class="at">fill =</span> dest)) <span class="sc">+</span></span>
+<span id="cb15-53"><a href="#cb15-53" tabindex="-1"></a>      <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">&quot;identity&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb15-54"><a href="#cb15-54" tabindex="-1"></a>      <span class="fu">geom_label</span>(<span class="fu">aes</span>(<span class="at">label =</span> n), <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.2</span>, <span class="at">label.size =</span> <span class="cn">NA</span>, <span class="at">fill =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span> </span>
+<span id="cb15-55"><a href="#cb15-55" tabindex="-1"></a>      <span class="fu">scale_fill_brewer</span>(<span class="at">palette =</span> <span class="st">&quot;Paired&quot;</span>) <span class="sc">+</span></span>
+<span id="cb15-56"><a href="#cb15-56" tabindex="-1"></a>      <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb15-57"><a href="#cb15-57" tabindex="-1"></a>      <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">vjust =</span> <span class="dv">1</span>),</span>
+<span id="cb15-58"><a href="#cb15-58" tabindex="-1"></a>            <span class="at">legend.position =</span> <span class="st">&quot;none&quot;</span>)</span>
+<span id="cb15-59"><a href="#cb15-59" tabindex="-1"></a>    </span>
+<span id="cb15-60"><a href="#cb15-60" tabindex="-1"></a>  })</span>
+<span id="cb15-61"><a href="#cb15-61" tabindex="-1"></a>  </span>
+<span id="cb15-62"><a href="#cb15-62" tabindex="-1"></a>  <span class="co"># update choices for city based on selected dates/State</span></span>
+<span id="cb15-63"><a href="#cb15-63" tabindex="-1"></a>  <span class="fu">observeEvent</span>(<span class="fu">df</span>(), {</span>
+<span id="cb15-64"><a href="#cb15-64" tabindex="-1"></a>    choices <span class="ot">&lt;-</span> <span class="fu">unique</span>(<span class="fu">df</span>()<span class="sc">$</span>City)</span>
+<span id="cb15-65"><a href="#cb15-65" tabindex="-1"></a>    <span class="fu">updateSelectInput</span>(<span class="at">inputId =</span> <span class="st">&quot;city&quot;</span>, <span class="at">choices =</span> choices)</span>
+<span id="cb15-66"><a href="#cb15-66" tabindex="-1"></a>  })</span>
+<span id="cb15-67"><a href="#cb15-67" tabindex="-1"></a>  </span>
+<span id="cb15-68"><a href="#cb15-68" tabindex="-1"></a>  <span class="co"># additional filtering based on selected city</span></span>
+<span id="cb15-69"><a href="#cb15-69" tabindex="-1"></a>  city <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb15-70"><a href="#cb15-70" tabindex="-1"></a>    <span class="fu">req</span>(input<span class="sc">$</span>city)</span>
+<span id="cb15-71"><a href="#cb15-71" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="fu">df</span>(), City <span class="sc">==</span> input<span class="sc">$</span>city)</span>
+<span id="cb15-72"><a href="#cb15-72" tabindex="-1"></a>  })</span>
+<span id="cb15-73"><a href="#cb15-73" tabindex="-1"></a>  </span>
+<span id="cb15-74"><a href="#cb15-74" tabindex="-1"></a>  <span class="co"># generate table of potential flights to city of choice</span></span>
+<span id="cb15-75"><a href="#cb15-75" tabindex="-1"></a>  output<span class="sc">$</span>table <span class="ot">&lt;-</span> <span class="fu">renderDataTable</span>({</span>
+<span id="cb15-76"><a href="#cb15-76" tabindex="-1"></a>    </span>
+<span id="cb15-77"><a href="#cb15-77" tabindex="-1"></a>    <span class="fu">req</span>(input<span class="sc">$</span>city)  <span class="co"># Ensure input is available</span></span>
+<span id="cb15-78"><a href="#cb15-78" tabindex="-1"></a>    </span>
+<span id="cb15-79"><a href="#cb15-79" tabindex="-1"></a>    <span class="co"># format table for display</span></span>
+<span id="cb15-80"><a href="#cb15-80" tabindex="-1"></a>    <span class="fu">mutate_if</span>(<span class="fu">city</span>(), is.Date,<span class="sc">~</span><span class="fu">format</span>(.,<span class="st">&quot;%d-%m-%Y&quot;</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-81"><a href="#cb15-81" tabindex="-1"></a>      dplyr<span class="sc">::</span><span class="fu">select</span>(origin, dest, date, depart, arrive, carrier)</span>
+<span id="cb15-82"><a href="#cb15-82" tabindex="-1"></a>    </span>
+<span id="cb15-83"><a href="#cb15-83" tabindex="-1"></a>  })</span>
+<span id="cb15-84"><a href="#cb15-84" tabindex="-1"></a>  </span>
+<span id="cb15-85"><a href="#cb15-85" tabindex="-1"></a>}</span>
+<span id="cb15-86"><a href="#cb15-86" tabindex="-1"></a></span>
+<span id="cb15-87"><a href="#cb15-87" tabindex="-1"></a><span class="co"># Run the application </span></span>
+<span id="cb15-88"><a href="#cb15-88" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
+</div>
+</div>
+<div id="how-to-run-the-app" class="section level1">
+<h1>How to Run the App</h1>
+<p>To run the app:</p>
+<ol style="list-style-type: decimal">
+<li>Create a new R script or RMarkdown file</li>
+<li>Copy the complete code from above</li>
+<li>Save the file with a name like “us_holiday_app.R” or “app.R”</li>
+<li>Click the “Run App” button in RStudio (or use
+<code>shiny::runApp()</code> in the console)</li>
+</ol>
+</div>
+<div id="key-shiny-concepts-to-understand" class="section level1">
+<h1>Key Shiny Concepts to Understand</h1>
+<div id="reactivity" class="section level2">
+<h2>Reactivity</h2>
+<p>Reactivity is a key concept in Shiny. When an input value changes,
+any outputs that depend on it automatically update. This is extremely
+powerful but also means you need to understand reactivity and keep track
+of the reactive elements in your app.</p>
+<p>Key points to understand:</p>
+<ul>
+<li>UI inputs (e.g. <code>input$state</code>) can only be used within
+reactive environments.<br />
+</li>
+<li>Computations using inputs should be performed within
+<code>reactive({...})</code>.<br />
+</li>
+<li>Results of <code>reactive(...)</code> computations can be assigned
+to a value and used elsewhere in the app
+(e.g. <code>df &lt;- reactive({...})</code> ). To access these reactive
+values you MUST use <code>df()</code> with parenthesis.<br />
+</li>
+<li><code>observeEvent(df(), { ... })</code> can be used to watch for
+changes to a reactive value (<code>df()</code>) and perform actions only
+when it updates.<br />
+</li>
+<li><code>updateSelectInput(...)</code> can be used to update choices
+for a UI input.</li>
+</ul>
+</div>
+</div>
+<div id="challenge-exercises" class="section level1">
+<h1>Challenge Exercises</h1>
+<p>Now that you understand the basics, try these exercises to extend the
+app:</p>
+<ol style="list-style-type: decimal">
+<li>Add an additional user input (e.g. airport of origin, carrier,
+departure time…).</li>
+<li>Make the new user input dynamic with
+<code>update*Input()</code>.</li>
+<li>Modify the table to output results filtered by the new user
+input.</li>
+</ol>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>In this tutorial, you’ve learned:</p>
+<ol style="list-style-type: decimal">
+<li>How reactivity works in Shiny</li>
+<li>The difference between <code>render*()</code>,
+<code>reactive()</code>, and <code>observe()</code> functions</li>
+<li>How to use <code>reactive()</code> for data processsing to reduce
+code duplication</li>
+<li>How to create a dynamic UI with <code>update*Input()</code>
+functions</li>
+</ol>
+</div>
+<div id="resources-for-further-learning" class="section level1">
+<h1>Resources for Further Learning</h1>
+<ul>
+<li><a
+href="https://shiny.posit.co/r/getstarted/build-an-app/reactivity-essentials/reactive-elements.html">Shiny
+Reactive Elements</a></li>
+<li><a href="https://mastering-shiny.org/">Mastering Shiny</a> by Hadley
+Wickham</li>
+<li><a href="https://shiny.posit.co/r/articles/start/cheatsheet/">Shiny
+Cheatsheet</a></li>
+</ul>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
