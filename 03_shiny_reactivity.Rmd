@@ -1,6 +1,6 @@
 ---
 title: "Reactivity in Shiny"
-author: "Jacqueline Rehn"
+author: "Dr Jacqueline Rehn"
 output: 
   html_document:
     toc: true
