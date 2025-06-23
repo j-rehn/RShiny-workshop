@@ -1,0 +1,25 @@
+---
+title: "RShiny Workshop (COMBINE SA)"
+output: 
+  html_document:
+    toc: FALSE
+---
+
+# Welcome
+
+Welcome to our **RShiny Workshop** proudly supported by the SA COMBINE committee.
+
+Shiny is an R package which allows you to build interactive webpages
+with R (No knowledge of html/CSS or webpage development required!).
+
+This workshop will provide an introduction to Shiny and allow you to
+build several simple apps to get a feel for how Shiny works and what you
+can do.
+
+## Pre-requisites
+
+The tutorial is designed for those who already have some knowledge or `R` and `Rstudio`.
+You will need to have both installed on your computer. 
+
+Additionally, you will need to install the R package `Shiny` and some other useful packages for building apps.
+Click on the **Getting Started** tab at the top of this site for complete install and setup instructions.

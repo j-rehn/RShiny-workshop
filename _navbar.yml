@@ -1,0 +1,20 @@
+name: "RShiny-workshop"
+title: "RShiny Workshop (COMBINE)"
+type: inverse
+left:
+  - text: "Getting Started"
+    href: ./gettingstarted.html
+  - text: "Introduction"
+    href: ./workshop-overview.html
+  - text: "Tutorials"
+    menu:
+       - text: "02 Birthday App"
+         href: ./02_birthday_app.html
+       - text: "03 Reactivity"
+         href: ./03_shiny_reactivity.html
+       - text: "04 Interactive Outputs"
+         href: ./04_interactive_outputs.html
+       - text: "05 Shiny Modules"
+         href: ./05_shiny_modules.html
+right:
+

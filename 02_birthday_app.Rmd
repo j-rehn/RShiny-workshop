@@ -1,0 +1,452 @@
+---
+title: "Introduction to Shiny: Building a Birthday App"
+author: "Dr Melanie Smith"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cosmo
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+# Introduction to Shiny
+
+## What is Shiny?
+
+Shiny is an R package that makes it easy to build interactive web applications directly from R. Despite being a powerful framework, Shiny is accessible to R users without web development experience. In this tutorial, we'll build a simple application that:
+
+1. Accepts a JPEG image upload
+2. Lets users select their birth date using a calendar widget
+3. Displays the day of the week they were born on
+
+## Prerequisites
+
+Before we begin, make sure you have the necessary packages installed:
+
+```{r install-packages}
+# Install required packages if you don't have them
+if (!require("shiny")) install.packages("shiny")
+if (!require("lubridate")) install.packages("lubridate")
+```
+
+# Understanding the Structure of a Shiny App
+
+Every Shiny app consists of two main components:
+
+1. **UI (User Interface)**: Controls the layout and appearance of the app
+2. **Server**: Contains the logic that tells the app how to process inputs and create outputs
+
+A basic Shiny app structure looks like this:
+
+```{r basic-structure}
+library(shiny)
+
+# Define UI
+ui <- fluidPage(
+  # UI elements go here
+)
+
+# Define server logic
+server <- function(input, output) {
+  # Server logic goes here
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
+```
+
+# Building Our Birthday App Step by Step
+
+Now, let's build our birthday app piece by piece:
+
+## Step 1: Creating the Basic Framework
+
+First, let's set up the basic structure of our app:
+
+```{r framework}
+library(shiny)
+library(lubridate)  # For working with dates
+
+# Define UI
+ui <- fluidPage(
+  titlePanel("Birthday Day Calculator"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      # Our input controls will go here
+    ),
+    
+    mainPanel(
+      # Our outputs will go here
+    )
+  )
+)
+
+# Define server logic
+server <- function(input, output) {
+  # Our server logic will go here
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
+```
+
+In this framework:
+
+- `titlePanel()` creates a header for our app  
+- `sidebarLayout()` divides our app into two sections: a sidebar for inputs and a main panel for outputs  
+- `sidebarPanel()` is where we'll put our controls (image upload and date selector)  
+- `mainPanel()` is where we'll display our results (image and text)  
+
+## Step 2: Adding Input Controls
+
+Now, let's add the input controls to our app:
+
+```{r input-controls}
+ui <- fluidPage(
+  titlePanel("Birthday Day Calculator"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      # Upload JPEG image
+      fileInput("imageFile", "Upload your JPEG image:",
+                accept = c("image/jpeg", "image/jpg")),
+      
+      # Date input for selecting birth date
+      dateInput("birthDate", "Select your birth date:", 
+                value = Sys.Date(),
+                format = "yyyy-mm-dd"),
+      
+      # Submit button
+      actionButton("submitBtn", "Submit")
+    ),
+    
+    mainPanel(
+      # Our outputs will go here
+    )
+  )
+)
+```
+
+Let's break down the input controls:
+
+1. `fileInput("imageFile", "Upload your JPEG image:")`: Creates a file upload control
+   - The first argument `"imageFile"` is the input ID (we'll use this to access the file in the server)
+   - The second argument is the label displayed to users
+   - `accept = c("image/jpeg", "image/jpg")` limits uploads to JPEG files only
+
+2. `dateInput("birthDate", "Select your birth date:")`: Creates a calendar widget
+   - `"birthDate"` is the input ID 
+   - `value = Sys.Date()` sets the default value to today's date
+   - `format = "yyyy-mm-dd"` specifies how the date should be displayed
+
+3. `actionButton("submitBtn", "Submit")`: Creates a button that users will click to submit their information
+
+## Step 3: Adding Output Elements
+
+Now let's add the elements that will display our outputs:
+
+```{r output-elements}
+ui <- fluidPage(
+  titlePanel("Birthday Day Calculator"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      # Upload JPEG image
+      fileInput("imageFile", "Upload your JPEG image:",
+                accept = c("image/jpeg", "image/jpg")),
+      
+      # Date input for selecting birth date
+      dateInput("birthDate", "Select your birth date:", 
+                value = Sys.Date(),
+                format = "yyyy-mm-dd"),
+      
+      # Submit button
+      actionButton("submitBtn", "Submit")
+    ),
+    
+    mainPanel(
+      # Display the uploaded image
+      imageOutput("imageDisplay"),
+      
+      # Display the result text
+      h3(textOutput("resultText")),
+      
+      # Optional: Display the selected date
+      verbatimTextOutput("dateInfo")
+    )
+  )
+)
+```
+
+The output elements are:
+
+1. `imageOutput("imageDisplay")`: Creates a container for our uploaded image
+   - `"imageDisplay"` is the output ID that we'll use in the server logic
+
+2. `h3(textOutput("resultText"))`: Creates a heading (h3) containing our result text
+   - `textOutput("resultText")` will display our "You were born on a ___" message
+   - Wrapping it in `h3()` makes it display as a larger heading
+
+3. `verbatimTextOutput("dateInfo")`: Creates a verbatim text output for the selected date
+   - This will display the selected date in a fixed-width font
+
+## Step 4: Adding Server Logic
+
+Now, let's write the server logic that processes inputs and creates outputs:
+
+```{r server-logic}
+server <- function(input, output) {
+  
+  # Display the uploaded image
+  output$imageDisplay <- renderImage({
+    req(input$imageFile)
+    
+    # Validate that the file is a jpeg
+    if (!grepl("jpeg|jpg", input$imageFile$type, ignore.case = TRUE)) {
+      return(NULL)
+    }
+    
+    # Return a list with the image info
+    list(
+      src = input$imageFile$datapath,
+      contentType = input$imageFile$type,
+      width = "100%",
+      alt = "Uploaded image"
+    )
+  }, deleteFile = FALSE)
+  
+  # Get the day of week
+  dayOfWeek <- eventReactive(input$submitBtn, {
+    req(input$birthDate)
+    weekdays(input$birthDate)
+  })
+  
+  # Create the output text
+  output$resultText <- renderText({
+    req(dayOfWeek())
+    paste("You were born on a", dayOfWeek())
+  })
+  
+  # Display the selected date (optional)
+  output$dateInfo <- renderText({
+    req(input$birthDate)
+    paste("Selected date:", format(input$birthDate, "%B %d, %Y"))
+  })
+}
+```
+
+Let's break down the server logic:
+
+1. **Image Display Logic**:
+   ```r
+   output$imageDisplay <- renderImage({
+     req(input$imageFile)
+     
+     # Validate that the file is a jpeg
+     if (!grepl("jpeg|jpg", input$imageFile$type, ignore.case = TRUE)) {
+       return(NULL)
+     }
+     
+     # Return a list with the image info
+     list(
+       src = input$imageFile$datapath,
+       contentType = input$imageFile$type,
+       width = "100%",
+       alt = "Uploaded image"
+     )
+   }, deleteFile = FALSE)
+   ```
+   - `req(input$imageFile)` ensures the logic only runs when a file is uploaded
+   - The validation checks if the file has a JPEG extension
+   - `renderImage()` expects a list with specific properties (src, contentType, etc.)
+   - `deleteFile = FALSE` prevents Shiny from deleting the file after display
+
+2. **Day of Week Calculation**:
+   ```r
+   dayOfWeek <- eventReactive(input$submitBtn, {
+     req(input$birthDate)
+     weekdays(input$birthDate)
+   })
+   ```
+   - `eventReactive()` makes the calculation only happen when the submit button is clicked
+   - `weekdays()` is a function from base R that extracts the day of the week from a date
+
+3. **Result Text Creation**:
+   ```r
+   output$resultText <- renderText({
+     req(dayOfWeek())
+     paste("You were born on a", dayOfWeek())
+   })
+   ```
+   - `renderText()` creates text output
+   - `req(dayOfWeek())` ensures the calculation has been performed
+   - `paste()` combines the text with our calculated day
+
+4. **Date Info Display**:
+   ```r
+   output$dateInfo <- renderText({
+     req(input$birthDate)
+     paste("Selected date:", format(input$birthDate, "%B %d, %Y"))
+   })
+   ```
+   - This shows the selected date in a more readable format
+
+## Step 5: Putting It All Together
+
+Now, let's put everything together to create our complete Shiny app:
+
+```{r complete-app}
+library(shiny)
+library(lubridate)
+
+# Define UI
+ui <- fluidPage(
+  titlePanel("Birthday Day Calculator"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      # Upload JPEG image
+      fileInput("imageFile", "Upload your JPEG image:",
+                accept = c("image/jpeg", "image/jpg")),
+      
+      # Date input for selecting birth date
+      dateInput("birthDate", "Select your birth date:", 
+                value = Sys.Date(),
+                format = "yyyy-mm-dd"),
+      
+      # Submit button
+      actionButton("submitBtn", "Submit")
+    ),
+    
+    mainPanel(
+      # Display the uploaded image
+      imageOutput("imageDisplay"),
+      
+      # Display the result text
+      h3(textOutput("resultText")),
+      
+      # Optional: Display the selected date
+      verbatimTextOutput("dateInfo")
+    )
+  )
+)
+
+# Define server logic
+server <- function(input, output) {
+  
+  # Display the uploaded image
+  output$imageDisplay <- renderImage({
+    req(input$imageFile)
+    
+    # Validate that the file is a jpeg
+    if (!grepl("jpeg|jpg", input$imageFile$type, ignore.case = TRUE)) {
+      return(NULL)
+    }
+    
+    # Return a list with the image info
+    list(
+      src = input$imageFile$datapath,
+      contentType = input$imageFile$type,
+      width = "100%",
+      alt = "Uploaded image"
+    )
+  }, deleteFile = FALSE)
+  
+  # Get the day of week
+  dayOfWeek <- eventReactive(input$submitBtn, {
+    req(input$birthDate)
+    weekdays(input$birthDate)
+  })
+  
+  # Create the output text
+  output$resultText <- renderText({
+    req(dayOfWeek())
+    paste("You were born on a", dayOfWeek())
+  })
+  
+  # Display the selected date (optional)
+  output$dateInfo <- renderText({
+    req(input$birthDate)
+    paste("Selected date:", format(input$birthDate, "%B %d, %Y"))
+  })
+}
+
+# Run the application 
+shinyApp(ui = ui, server = server)
+```
+
+# How to Run the App
+
+To run the app:
+
+1. Create a new R script or RMarkdown file
+2. Copy the complete code from above
+3. Save the file with a name like "birthday_app.R" or "app.R"
+4. Click the "Run App" button in RStudio (or use `shiny::runApp()` in the console)
+
+# Key Shiny Concepts to Understand
+
+## Reactivity
+
+Reactivity is a key concept in Shiny. When an input value changes, any outputs that depend on it automatically update. There are several important reactive functions:
+
+- `reactive()`: Creates a reactive expression that updates when its dependencies change
+- `eventReactive()`: Creates a reactive expression that updates only when a specific event occurs
+- `observeEvent()`: Performs an action when a specific event occurs
+- `req()`: Ensures that a value is available before proceeding
+
+In our app, we used `eventReactive()` to calculate the day of the week only when the submit button is clicked, rather than automatically when the date changes.
+
+## Input and Output IDs
+
+Notice how we use IDs to connect UI elements to server logic:
+
+1. In the UI, we create input controls with IDs like `"imageFile"` and `"birthDate"`
+2. In the server, we access these inputs using `input$imageFile` and `input$birthDate`
+3. Similarly, we define output IDs in the UI (`"imageDisplay"`, `"resultText"`) and set these outputs in the server using `output$imageDisplay` and `output$resultText`
+
+This ID system is how Shiny knows which elements are connected.
+
+## Render Functions
+
+Different types of outputs require different render functions:
+
+- `renderText()`: For text output
+- `renderImage()`: For images
+- `renderPlot()`: For plots
+- `renderTable()`: For tables
+- `renderUI()`: For dynamic UI elements
+
+Each render function pairs with a corresponding output function in the UI.
+
+# Challenge Exercises
+
+Now that you understand the basics, try these exercises to extend the app:
+
+1. Add error handling for when no image is uploaded
+2. Modify the app to display the birth month as well as the day of the week
+3. Add a feature that calculates the user's age in years, months, and days
+4. Change the app's appearance using a theme from the `bslib` package
+
+# Conclusion
+
+In this tutorial, you've learned:
+
+1. The basic structure of a Shiny app
+2. How to create input controls and output elements
+3. How to write server logic to process inputs and create outputs
+4. How reactivity works in Shiny
+
+Shiny is a powerful tool for creating interactive web applications directly from R. With the knowledge you've gained from this tutorial, you can start building your own interactive applications for data analysis, visualization, and more.
+
+# Resources for Further Learning
+
+- [Shiny Official Documentation](https://shiny.rstudio.com/)
+- [Shiny Gallery](https://shiny.rstudio.com/gallery/)
+- [Mastering Shiny](https://mastering-shiny.org/) by Hadley Wickham
+- [RStudio Shiny Cheatsheet](https://shiny.rstudio.com/images/shiny-cheatsheet.pdf)

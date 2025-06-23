@@ -1,0 +1,677 @@
+---
+title: "Reactivity in Shiny"
+author: "Jacqueline Rehn"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cosmo
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+# What is Reactivity?
+
+Reactivity in R Shiny is the system that enables your app to automatically update outputs when user inputs change, creating dynamic and interactive web applications. Instead of manually specifying when code should run, you declare relationships between inputs, computations, and outputs, and Shiny manages when and how updates occur. This includes:
+
+- **Automatic Dependency Tracking**: Shiny tracks which outputs depend on which inputs and computations. When an input changes, only the affected outputs are updated.  
+
+- **Lazy Evaluation and Caching**: Reactive expressions only run when needed and cache their results. They recalculate only if their dependencies (inputs or other reactives) change, improving efficiency.  
+
+### Core Components of Reactivity
+
+- **Reactive Inputs**: User interface elements (e.g., sliders, text boxes) that users interact with.  
+
+- **Reactive Expressions**: Use the `reactive()` or `observe()` functions to process or transform inputs. The `reactive()` function can also return values that can be used by multiple outputs, recalculating only when their dependencies change.  
+
+- **Reactive Outputs**: Use `render*()` functions (like `renderPlot()`, `renderText()`) to display results in the UI. They automatically update when their dependencies (inputs or reactive expressions) change.  
+
+
+All inputs are automatically reactive and therefore must be accessed inside reactive contexts (i.e., inside `reactive()`, `render*()`, or `observe()` functions). Accessing inputs outside these environments will not work, as Shiny can only track dependencies within reactive scopes.
+
+### Key Guidelines
+
+Only call inputs and reactive expressions inside reactive environments (`reactive()`, `render*()`, or `observe()`). This ensures Shiny can track dependencies and update outputs correctly.
+
+Use `render*()` for outputs that display results in the UI.  
+Use `reactive()` for computations that return values and are used in multiple places.  
+Use `observe()` for side effects (actions that don't return values, like updating UI elements).  
+
+# Building Our US Holiday App Step by Step
+
+To better understand reactivity, we will build an app called US holiday which includes several reactive elements. 
+
+## Step 1: Review the data
+
+First, let's have a look at the data:
+
+```{r data-and-framework}
+
+# load required libraries
+library(shiny)
+library(tidyverse)
+library(DT)
+library(here)
+
+# import data
+flights <- read_csv(here("data/flight_data.csv"))
+head(flights)
+glimpse(flights)
+
+```
+
+The data provided represents flights from New York City to airports across the US for the next twelve months (Data extracted and modified from the R data package `nycflights13`).
+
+We will use this data to plan a holiday starting in NY and flying to your preferred destination. Our app will contain a summary plot representing the number of available flights to your state of choice and a table listing possible flights for your selected holiday.
+
+## Step 2: Create Initial User Interface
+
+Let's create the user interface with some initial input controls to subset the flight data by date range and State. We will also add a plot and table element for displaying results.
+
+```{r app-framework}
+
+ui <- fluidPage(
+  titlePanel("US Holiday"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      # input dates
+      dateRangeInput("daterange", "Date range:",
+                     start = "2025-07-01",
+                     end   = "2026-06-30"),
+      # select destination state
+      selectInput("state", "State", choices = unique(flights$State))
+    ),
+    
+    mainPanel(
+      # display flight summary plot
+      plotOutput("destOverview"),
+      # display flight options
+      dataTableOutput("table")
+    )
+  )
+  
+)
+
+```
+
+Let's break down the input controls and output elements:
+
+1. `dateRangeInput("daterange", "Date range:", start = "2025-07-01", end = "2026-06-30")`: Creates two calendar widgets with dates from today to next year.
+   - `"daterange"` is the input ID 
+   - `"Date range:"` is the label shown next to the input in the UI  
+   - `start = "2025-07-01"` sets the default start date to July 1 2025 
+   - `end   = "2026-06-30"` sets the default end date to June 30 2026  
+   - Data Format: `input$daterange` is a vector of length 2. First element of vector is start date. Second element is end date. Both values are strings in "yyyy-mm-dd" format, unless otherwise specified by the format argument.  
+
+2. `selectInput("state", "State", choices = unique(flights$State))` : Creates a drop down list of possible States to fly to.
+   - `"state"` is the input ID  
+   - `"State"` is the label shown next to the input in the UI. 
+   - `choices = unique(flights$State)` generates the list of options to display. By using `unique(flights$State)` this can be determined from the data directly as opposed to manually generating a complete list.  
+
+3. `plotOutput("destOverview")` : Creates a placeholder in the UI for a plot output, which will be rendered by the server function using `renderPlot()` with the output ID `"destOverview"`.  
+
+4. `dataTableOutput("table")` : Creates a placeholder for an interactive data table, which is rendered by the server using `renderDataTable()` with the output ID "table".  
+
+## Step 3: Adding Server Logic 
+
+### Using UI input directly
+
+Let's start building the server logic. For our first attempt we will write code in a similar style used when writing an R script.
+
+```{r example-input-outside-reactive, eval=FALSE}
+
+server <- function(input, output, session) {
+  
+  # filter data according to selections
+  df <- filter(flights, 
+           date >= input$daterange[1],
+           date <= input$daterange[2],
+           State == input$state)
+  
+  # generate plot
+  output$destOverview <- renderPlot({
+    
+    df %>% 
+      # count number flights to each destination
+      dplyr::count(dest) %>% 
+      ggplot(aes(x = dest, y = n, fill = dest)) +
+        geom_bar(stat = "identity") + 
+        geom_label(aes(label = n), vjust = -0.2, label.size = NA, fill = "white") + 
+        scale_fill_brewer(palette = "Paired") +
+        theme_minimal() + 
+        theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+              legend.position = "none")
+    
+  })
+  
+}
+
+shinyApp(ui, server)
+
+```
+
+Let's break down the steps:
+
+1. **Initial data processing**:
+   ```r
+   df <- filter(flights, 
+           date >= input$daterange[1],
+           date <= input$daterange[2],
+           State == input$state)
+   })
+   ```
+  - The `filter()` function from the dplyr package is used to subset the flights data frame. 
+  - `date >= input$daterange[1]` and `date <= input$daterange`: Filters rows so that only flights within the user-selected date range are included.
+  - `State == input$state`: Filters rows to include only those matching the user's selected state  
+  
+2. **Generate summary plot**
+   ```r
+   output$destOverview <- renderPlot({
+    
+    df %>% 
+      # count number flights to each destination
+      dplyr::count(dest) %>% 
+      ggplot(aes(x = dest, y = n, fill = dest)) +
+      geom_bar(stat = "identity") + 
+      geom_label(aes(label = n), vjust = -0.2, label.size = NA, fill = "white") + 
+      scale_fill_brewer(palette = "Paired") +
+      theme_minimal() + 
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+            legend.position = "none")
+    
+   })
+   ```
+  - `output$destOverview <- renderPlot({ ... })` : defines a plot output for the Shiny UI with the ID "destOverview". The `renderPlot()` function is a reactive context that updates the plot whenever its dependencies (here, `df()`) change.
+  - `dplyr::count(dest)` : This function counts the number of flights for each unique destination (dest) in the filtered data. It returns a summary table with columns for `dest` and `n` (the count).
+  - `ggplot(aes(x = dest, y = n, fill = dest)) + ...` : Code chunk to generate ggplot.
+
+
+**What happens if we attempt to run the app?**  
+
+To test this you can paste the server code (along with the above data import and UI code chunks) into a new R script and try running the app. Alternatively, open `example_apps/03a_reactivity.R` and click run app.
+
+If you attempt to run the app using the server logic above you get an error in the filter command caused by `input$daterange` and a reminder that you can't access reactive values like `daterange` outside of reactive consumers. The purpose of this is to highlight the difference between performing functions in R vs R Shiny, and to highlight the importance of keeping track of **reactive** elements and only calling them within **reactive containers**.
+
+So how can we fix our broken app?
+
+### render*() functions
+
+The obvious solution to the above error is to move the code performing the filtering step so that it appears within the `renderPlot()` reactive environment.  
+
+We provide an example of what this looks like below. To test if it works, replace your previous server code with the code below, or open and run `example_apps/03b_reactivy.R`.
+
+```{r example-input-inside-render, eval=FALSE}
+
+server <- function(input, output, session) {
+  
+  # generate plot
+  output$destOverview <- renderPlot({
+    
+    # filter data according to selections
+    df <- filter(flights, 
+                 date >= input$daterange[1],
+                 date <= input$daterange[2],
+                 State == input$state)
+    
+    df %>% 
+      # count number flights to each destination
+      dplyr::count(dest) %>% 
+      ggplot(aes(x = dest, y = n, fill = dest)) +
+        geom_bar(stat = "identity") + 
+        geom_label(aes(label = n), vjust = -0.2, label.size = NA, fill = "white") + 
+        scale_fill_brewer(palette = "Paired") +
+        theme_minimal() + 
+        theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+              legend.position = "none")
+    
+  })
+  
+}
+
+```
+
+If you make the above adjustments and re-run the app, you now see that the app correctly generates a plot summarising the number of available flights according to the selected user inputs.
+
+The next step would be to add code to the server for gerating our table listing possible flights. This could be done in a similar fashion as above using `renderDataTable()`. For example:
+
+```{r example-separate-render-functions}
+
+server <- function(input, output, session) {
+  
+  # generate plot
+  output$destOverview <- renderPlot({
+    
+    # filter data according to selections
+    df <- filter(flights, 
+                 date >= input$daterange[1],
+                 date <= input$daterange[2],
+                 State == input$state)
+    
+    df %>% 
+      # count number flights to each destination
+      dplyr::count(dest) %>% 
+      ggplot(aes(x = dest, y = n, fill = dest)) +
+        geom_bar(stat = "identity") + 
+        geom_label(aes(label = n), vjust = -0.2, label.size = NA, fill = "white") + 
+        scale_fill_brewer(palette = "Paired") +
+        theme_minimal() + 
+        theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+              legend.position = "none")
+    
+  })
+  
+  # generate table of potential flights
+  output$table <- renderDataTable({
+    
+    # filter data according to selections
+    df <- filter(flights, 
+                 date >= input$daterange[1],
+                 date <= input$daterange[2],
+                 State == input$state)
+    # format table for display
+      mutate_if(df, is.Date,~format(.,"%d-%m-%Y")) %>% 
+      dplyr::select(origin, dest, date, depart, arrive, carrier)
+    
+  })
+  
+}
+
+```
+
+To test if it works, replace your previous server code with the code below, or open and run `example_apps/03c_reactivy.R`.
+
+Again, the app works and we now have both a summary plot and searchable table with flights based on user selected dates and State selections. **However**, we have duplicated the code for filtering the original data within each `render*()` function. 
+
+To avoid duplicating code as we have done above, we can shift the filtering step so that it occurs inside `reactive()`.
+
+### reactive()
+
+The `reactive()` function differs from `render*()` functions in that it is designed for data processing to compute values that you want to reuse.
+
+ - **Purpose**: Compute values that depend on inputs and may be used in multiple places.  
+ - **How Used**: You wrap code inside `reactive()` to create a reactive expression that returns a value (like a filtered dataset or a calculation).  
+ - **Behavior**: The code inside only runs when needed (lazy evaluation), and the result is cached until dependencies change. You call the result like a function (e.g., `myData()`).  
+
+The key points to remember are that the results of `reactive()` are assigned to a reactive variable, and in order to use that variable within another `render*()` or `reactive()` container you must call the object with parenthesis afterwards (e.g. `df()` not `df`).
+
+Let's see an example with our US holiday app:
+
+```{r example-reactive-container}
+
+server <- function(input, output, session) {
+  
+  # filter data according to selections
+  df <- reactive({
+    filter(flights, 
+           date >= input$daterange[1],
+           date <= input$daterange[2],
+           State == input$state)
+    })
+  
+  # generate plot
+  output$destOverview <- renderPlot({
+    
+    df() %>% 
+      # count number flights to each destination
+      dplyr::count(dest) %>% 
+      ggplot(aes(x = dest, y = n, fill = dest)) +
+        geom_bar(stat = "identity") + 
+        geom_label(aes(label = n), vjust = -0.2, label.size = NA, fill = "white") + 
+        scale_fill_brewer(palette = "Paired") +
+        theme_minimal() + 
+        theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+              legend.position = "none")
+    
+  })
+  
+  # generate table of potential flights
+  output$table <- renderDataTable({
+    
+    # format table for display
+      mutate_if(df(), is.Date,~format(.,"%d-%m-%Y")) %>% 
+      dplyr::select(origin, dest, date, depart, arrive, carrier)
+    
+  })
+  
+}
+
+```
+
+Let's break down the changes to the server logic:
+
+1. **Initial data processing**:
+   ```r
+   df <- reactive({
+    filter(flights, 
+           date >= input$daterange[1],
+           date <= input$daterange[2],
+           State == input$state)
+   })
+   ```
+  - `reactive({ ... })` creates a reactive expression in Shiny. Code inside `reactive()` is only executed when one of its dependencies (here, `input$daterange` or `input$state`) changes.  
+  - `df <- reactive({...})` Assigns the reactive expression to the variable df. This means `df` is now a reactive variable—you must call it as `df()` (with parentheses) when you want to access the filtered data elsewhere in your server code.  
+  - The `filter()` function from the dplyr package is used to subset the flights data frame. 
+  - `date >= input$daterange[1]` and `date <= input$daterange`: Filters rows so that only flights within the user-selected date range are included.  
+  - `State == input$state`: Filters rows to include only those matching the user's selected state.  
+  
+2. **Use reactive variable**
+  - Inside both `render*()` functions we have the reactive variable `df()`
+  - This is the filtered data frame based on user input. The parentheses are necessary to access the current value of the reactive expression. Any changes in the inputs used to create `df()` will automatically trigger the plot to update.
+
+
+To test if it works, replace your previous server code with the code above, or open and run `example_apps/03d_reactivy.R`.
+
+This app (`03d_reactivity`) functions the same as the previous app but is easier to follow. Rather than duplicate code we have performed the initial filtering within `reactive()` and assigned the results to `df()`. The resulting reactive value `df()` can then be used in multiple places - here within both `renderPlot()` and `renderDataTable()`.
+
+### observe()
+
+The final type of reactive container is `observe()`. This is used to perform an action that is not tied to a display output for the user interface (i.e not `render*()`) and where the results of the action won't be needed by other functions in the server.
+
+ - **Purpose**: Perform actions or side effects in response to changes, such as updating UI elements or saving files.  
+ - **How Used**: You wrap code in `observe()` when you want something to happen (not return a value) whenever certain inputs or reactives change.  
+ - **Behavior**: The code runs immediately when dependencies change (eager evaluation), but does not return a value and cannot be used as input elsewhere.  
+
+`Observe()` is often linked to actions like saving or downloading data. However, it can also be used to update user interface variables to create a dynamic UI.
+
+What do we mean by this? Generally, the UI is created when the app starts, and it cannot be changed. For example, our list of US States to fly to doesn't alter, even when the dates are changed. But what if we added a new user input for selecting the city to fly to? And we wanted the list of possible cities to update based on the State the user selected? This would be an example of a dynamic UI and is possible by combining `reactive()`, `observeEvent()` and `updateSelectInput()`.
+
+Let's look at the code needed to create this a dynamic user interface element.
+
+## Step 4: Update the User Interface
+
+We will keep the user interface from our earlier app, and simply add another input 'City'.
+
+```{r US-holiday-ui}
+
+library(shiny)
+library(tidyverse)
+library(DT)
+library(here)
+
+flights <- read_csv(here("data/flight_data.csv"))
+
+ui <- fluidPage(
+  titlePanel("US Holiday"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      # input dates
+      dateRangeInput("daterange", "Date range:",
+                    start = "2025-07-01",
+                     end   = "2026-06-30"),
+      # select destination state
+      selectInput("state", "State", choices = unique(flights$State)),
+      # select destination city
+      selectInput("city", "City", choices = NULL)
+    ),
+    
+    mainPanel(
+      # display fligt summary plot
+      plotOutput("destOverview"),
+      # display flight options
+      dataTableOutput("table")
+    )
+  )
+  
+)
+
+```
+
+Here the input controls are the same as before, we have simply added a new input:
+
+1. `selectInput("city", "City", choices = NULL)` : Creates a drop down list of possible States to fly to.
+  - `"city"` is the input ID. 
+  - `"City"` is the label shown next to the input in the UI.  
+  - `choices = NULL` Chices is set to `NULL` as this list will be dynamically generated.  
+
+## Step 5: Extend the Server Logic
+
+Again, we will retain the initial server steps from our example app. However, additional steps are added to update the user interface for available cities in the chosen state and perform extra filtering of the data for the table.
+
+```{r US-holiday-server}
+
+server <- function(input, output, session) {
+  
+  # filter data according to data/State selections
+  df <- reactive({
+    filter(flights, 
+           date >= input$daterange[1],
+           date <= input$daterange[2],
+           State == input$state)
+  })
+  
+  # generate plot based on selected city
+  output$destOverview <- renderPlot({
+    
+    df() %>% 
+      # count number flights to each destination
+      dplyr::count(dest) %>% 
+      ggplot(aes(x = dest, y = n, fill = dest)) +
+      geom_bar(stat = "identity") + 
+      geom_label(aes(label = n), vjust = -0.2, label.size = NA, fill = "white") + 
+      scale_fill_brewer(palette = "Paired") +
+      theme_minimal() + 
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+            legend.position = "none")
+    
+  })
+  
+  # update choices for city based on selected dates/State
+  observeEvent(df(), {
+    choices <- unique(df()$City)
+    updateSelectInput(inputId = "city", choices = choices)
+  })
+  
+  # additional filtering based on selected city
+  city <- reactive({
+    req(input$city)
+    filter(df(), City == input$city)
+  })
+  
+  # generate table of potential flights
+  output$table <- renderDataTable({
+    
+    req(input$city)  # Ensure input is available
+    
+    # format table for display
+    mutate_if(city(), is.Date,~format(.,"%d-%m-%Y")) %>% 
+      dplyr::select(origin, dest, date, depart, arrive, carrier)
+    
+  })
+  
+}
+
+```
+
+Let's break down the new element to the server logic:
+  
+1. **Update choices for City**  
+   ```r
+   observeEvent(df(), {
+    choices <- unique(df()$City)
+    updateSelectInput(inputId = "city", choices = choices)
+   })
+   ```
+   
+  - `observeEvent(df(), { ... })` : This function sets up an observer that watches for changes in the reactive expression `df()`. Whenever the filtered data (`df()`) updates (due to user changes in date range, state, or other filters) the code inside the observer is triggered.
+  - `choices <- unique(df()$City)` : This line extracts the unique values from the City column of the updated, filtered data. It creates a vector of city names currently available in the filtered dataset.
+  - `updateSelectInput(inputId = "city", choices = choices)` : This function updates the options available in a select input widget (dropdown) with inputId = "city" in the UI. The new choices are set to the unique cities found in the filtered data. This ensures that users can only select cities relevant to their current filters.
+
+2. **Filter based on City**  
+   ```r
+   city <- reactive({
+    req(input$city)
+    filter(df(), City == input$city)
+   })
+   ```
+   
+  - `city <- reactive({ ... })` : This line defines a reactive expression named city. It will return a filtered data frame each time its dependencies change. You must use `city()` (with parentheses) to access its value elsewhere in the server code.
+  - `req(input$city)` : The `req()` function ensures that `input$city` has a value before proceeding. If `input$city` is `NULL` or empty (e.g., before the user has made a selection), the reactive expression will not run further. This prevents errors or attempts to filter with a missing value.
+  - `filter(df(), City == input$city)` : This line filters the already-filtered flight data (`df()`, which is itself a reactive expression) to include only rows where the City column matches the currently selected city from the UI.
+
+3. **Generate table of flight options**  
+   ```r
+   output$table <- renderDataTable({
+    
+    req(input$city)  # Ensure input is available
+    
+    # format table for display
+    mutate_if(city(), is.Date,~format(.,"%d-%m-%Y")) %>% 
+      dplyr::select(origin, dest, date, depart, arrive, carrier)
+    
+   })
+   ```  
+   
+  - `output$table <- renderDataTable({ ... })` : This line defines a reactive output for the Shiny UI with the ID "table". The `renderDataTable()` function generates an interactive table, which will be displayed wherever `dataTableOutput("table")` is used in the UI.
+  - `mutate_if(city(), is.Date, ~format(.,"%d-%m-%Y"))` : This line applies a formatting function to all columns in the `city()` data frame that are of type Date. It converts date values to the "day-month-year" format ("dd-mm-yyyy") for better readability in the table.
+  - `dplyr::select(origin, dest, date, depart, arrive, carrier)` : This selects only the specified columns from the filtered data for display in the table. The result is a concise, user-friendly table showing the most relevant flight details.
+
+
+## Step 6: Putting It All Together
+
+Now, let's put everything together to create our complete Shiny app:
+
+```{r complete-app}
+
+library(shiny)
+library(tidyverse)
+library(DT)
+library(here)
+
+# import data for app
+flights <- read_csv(here("data/flight_data.csv"))
+
+# Define UI
+ui <- fluidPage(
+  titlePanel("US Holiday"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      # input dates
+      dateRangeInput("daterange", "Date range:",
+                     start = "2025-07-01",
+                     end   = "2026-06-30"),
+      # select destination state
+      selectInput("state", "State", choices = unique(flights$State)),
+      # select destination city
+      selectInput("city", "City", choices = NULL)
+    ),
+    
+    mainPanel(
+      # display fligt summary plot
+      plotOutput("destOverview"),
+      # display flight options
+      dataTableOutput("table")
+    )
+  )
+  
+)
+
+# Define server logic
+server <- function(input, output, session) {
+  
+  # filter data according to data/State selections
+  df <- reactive({
+    filter(flights, 
+           date >= input$daterange[1],
+           date <= input$daterange[2],
+           State == input$state)
+  })
+  
+  # generate plot based on selected city
+  output$destOverview <- renderPlot({
+    
+    df() %>% 
+      # count number flights to each destination
+      dplyr::count(dest) %>% 
+      ggplot(aes(x = dest, y = n, fill = dest)) +
+      geom_bar(stat = "identity") + 
+      geom_label(aes(label = n), vjust = -0.2, label.size = NA, fill = "white") + 
+      scale_fill_brewer(palette = "Paired") +
+      theme_minimal() + 
+      theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1),
+            legend.position = "none")
+    
+  })
+  
+  # update choices for city based on selected dates/State
+  observeEvent(df(), {
+    choices <- unique(df()$City)
+    updateSelectInput(inputId = "city", choices = choices)
+  })
+  
+  # additional filtering based on selected city
+  city <- reactive({
+    req(input$city)
+    filter(df(), City == input$city)
+  })
+  
+  # generate table of potential flights to city of choice
+  output$table <- renderDataTable({
+    
+    req(input$city)  # Ensure input is available
+    
+    # format table for display
+    mutate_if(city(), is.Date,~format(.,"%d-%m-%Y")) %>% 
+      dplyr::select(origin, dest, date, depart, arrive, carrier)
+    
+  })
+  
+}
+
+# Run the application 
+shinyApp(ui, server)
+
+```
+
+# How to Run the App
+
+To run the app:
+
+1. Create a new R script or RMarkdown file
+2. Copy the complete code from above
+3. Save the file with a name like "us_holiday_app.R" or "app.R"
+4. Click the "Run App" button in RStudio (or use `shiny::runApp()` in the console)
+
+# Key Shiny Concepts to Understand
+
+## Reactivity
+
+Reactivity is a key concept in Shiny. When an input value changes, any outputs that depend on it automatically update. This is extremely powerful but also means you need to understand reactivity and keep track of the reactive elements in your app.
+
+Key points to understand:  
+
+- UI inputs (e.g. `input$state`) can only be used within reactive environments.  
+- Computations using inputs should be performed within `reactive({...})`.  
+- Results of `reactive(...)` computations can be assigned to a value and used elsewhere in the app (e.g. `df <- reactive({...})` ). To access these reactive values you MUST use `df()` with parenthesis.  
+- `observeEvent(df(), { ... })` can be used to watch for changes to a reactive value (`df()`) and perform actions only when it updates.  
+- `updateSelectInput(...)` can be used to update choices for a UI input.  
+
+
+# Challenge Exercises
+
+Now that you understand the basics, try these exercises to extend the app:
+
+1. Add an additional user input (e.g. airport of origin, carrier, departure time...).
+2. Make the new user input dynamic with `update*Input()`.
+3. Modify the table to output results filtered by the new user input.
+
+# Conclusion
+
+In this tutorial, you've learned:
+
+1. How reactivity works in Shiny
+2. The difference between `render*()`, `reactive()`, and `observe()` functions
+3. How to use `reactive()` for data processsing to reduce code duplication
+4. How to create a dynamic UI with `update*Input()` functions
+
+# Resources for Further Learning
+
+- [Shiny Reactive Elements](https://shiny.posit.co/r/getstarted/build-an-app/reactivity-essentials/reactive-elements.html)
+- [Mastering Shiny](https://mastering-shiny.org/) by Hadley Wickham
+- [Shiny Cheatsheet](https://shiny.posit.co/r/articles/start/cheatsheet/)
+

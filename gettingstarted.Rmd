@@ -1,0 +1,70 @@
+---
+title: "Installation and Setup"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cosmo
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE,
+                      eval = FALSE)
+```
+
+
+Follow the install instructions below to prepare for the workshop.
+
+## R and RStudio
+
+Ensure that RStudio is installed. For this workshop we recommend running R >= 4.1.
+
+To check the version of R you are using, start RStudio and the first thing that appears on the terminal indicates the version of R you are running. Alternatively, you can type `sessionInfo()` in the console, which will also display which version of R you are running.
+
+## XQuartz - Recommended for macOS users
+
+For those with MacOS it is recommended that you have XQuartz installed as it is required by some of the packages we will be using. 
+
+To check if this is already installed on your machine go to launchpad and search for XQuartz. Alternatively, open your applications directory and perform a search (XQuartz is often installed within the `utilities` directory of your `applications` folder).
+
+If XQuartz is not installed, you'll need to download and install it from the [XQuartz website](https://www.xquartz.org/).
+
+## R packages
+
+Before we begin, we need to have the shiny package installed, as well as
+a few other key packages we will be using. Run the following commands in your R console.
+
+```{r set-up, eval=FALSE}
+# Install required packages if you don't have them
+if (!require("shiny")) install.packages("shiny") 
+if (!require("lubridate")) install.packages("lubridate") 
+if (!require("tidyverse")) install.packages("tidyverse") 
+if (!require("here")) install.packages("here") 
+if (!require("DT")) install.packages("DT") 
+if (!require("pheatmap")) install.packages("pheatmap") 
+if (!require("plotly")) install.packages("plotly") 
+if (!require("heatmaply")) install.packages("heatmaply") 
+```
+
+To ensure you successfully installed Shiny, try running one of the demo apps.
+
+```{r set-up check, eval=FALSE}
+library(shiny)
+runExample("01_hello")
+```
+
+If the example app is running, press Escape to close the app, and you are ready to build your first Shiny app!
+
+## Data and Examples
+
+During the workshop we will be building several shiny apps to demonstrate key concepts and features for R Shiny. To help with this we have provided some pre-compiled data that will be used, along with some example apps and R markdown files with the tutorial instructions we will be following.
+
+Download the workshop material [here](https://drive.google.com/file/d/1SAo9DZxR_GR1mz7VJXU9D-sp3KSaLHHq/view?usp=sharing) by clicking on the download button (top right). This will download a zip directory of all materials.
+
+- Move the download to a desired location on your computure and unzip the file.  
+- Click on the `shiny_workshop.Rproj` file to open up the R project in RStudio.  
+- Navigate to the tutorials folder, and click the `02_birthday_app.Rmd` file to open up the tutorial in RStudio.  
+- You can also, navigate to the docs folder, and click on the `02_birthday_app.html` file to open up the tutorial documentation in a web browser.  

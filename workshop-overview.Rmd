@@ -1,0 +1,70 @@
+---
+title: "Introduction"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cosmo
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE,
+                      eval = FALSE)
+```
+
+
+Today's workshop will provide an overview of how R Shiny works and demonstrate many of the useful features of `Shiny` for creating engaging and interactive applications. The ability to create Shiny apps is particularly useful in bioinformatic research where data is complex and needs to be shared with the wider research community - including those who don't know R!
+
+## Benefits of Creating Shiny Apps:
+
+- **Interactive Data Exploration:** Shiny apps allow users to manipulate data and parameters in real time, making it easier to explore large, complex datasets and extract meaningful insights.  
+- **Uses your existing R skills:** No need to learn new programming languages to build websites. If you already perform analyses in R, you can rapidly prototype and deploy custom tools and apps to suit your research.
+- **Collaboration and Accessibility:** Shiny apps can be shared online, enabling teams to collaborate, reproduce analyses, and access powerful tools without installing specialized software.  
+
+## Workshop overview
+
+We have structured the workshop as a series of tutorials that take you step-by-step through the process of creating a Shiny App. Each tutorial focuses on a different aspect of `Shiny` to progressively build your understanding. At the end of each tutorial there is a summary of key concepts, some challenges and links to additional resources.
+
+The workshop and tutorials are broken down as follows:
+
+### Part 1 - Shiny app basics  
+- Intro to Shiny apps  
+- Build the basic UI  
+- Use server logic to create outputs  
+Demonstrated through the `birthday_app` tutorial.
+
+### Part 2 - Understanding reactivity  
+- What are reactive elements  
+- Creating and accessing reactive variables  
+- Dynamic UI elements.  
+Demonstrated through the `shiny_reactivity` tutorial.
+
+### Part 3 - Using interactive tables/plots  
+- Plotly for making ggplots interactive  
+- DT for making interactive tables  
+- heatmaply for creating interactive heatmaps.  
+Demonstrated through the `interactive_outputs` tutorial.  
+*If time permits*  
+- converting single app files to modular structure  
+Demonstrated through the `shiny_modules` tutorial.  
+
+### Part 4 - Deploying your app  
+- Host on shinyapps.io  
+- Shiny server and other options  
+Demonstrated through the `deploying_shiny` tutorial.
+
+## Workshop Materials
+
+If you've successfully downloaded the workshop materials you should see a series of numbered Rmd files. These are the tutorials we will work through during the workshop. Additional directories:
+
+- `data/` : Containing the data we will use in some of our shiny apps for generating tables/plots.  
+- `docs/` : Containing rendered html version of each tutorial.  
+- `example_apps` : Pre-build examples of the completed apps for each tutorial (and intermediate stages for reactivity/interactive outputs tutorials).  
+
+We encourage you to work along with each tutorial and build your own version of each Shiny app. However, if you have any trouble you can access the relevant `example_app` for testing. 
+
+We also recommend revising the tutorials at a later date and exploring the suggested challenges and additional resources.
+

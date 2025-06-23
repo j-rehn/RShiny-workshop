@@ -1,0 +1,581 @@
+---
+title: "Building a Modular Shiny App"
+author: "Jacqueline Rehn"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: cosmo
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE)
+```
+
+# Introduction to Shiny Modules
+
+## What are Modules?
+
+Shiny Modules are a way to organize and structure Shiny applications by encapsulating related UI and server logic into reusable, self-contained components. Instead of writing all your app’s code in one large file, modules allow you to break your app into smaller pieces—each with its own user interface and server-side logic—that can be easily reused within the same app or across multiple apps.
+
+Learning about Shiny Modules is valuable because they help you:  
+
+- Avoid code duplication by reusing the same module in different places (embracing the DRY—Don’t Repeat Yourself—principle).  
+- Simplify complex apps by dividing them into manageable, isolated parts, making your codebase easier to read, debug, and maintain.  
+- Prevent input/output conflicts through automatic namespacing, so each module’s controls are kept separate from others.  
+- Scale up your apps more easily, since modules can be combined, nested, and composed as your project grows.  
+
+Learning about shiny modules is best done with an example. So let's do this by converting the `dgeVis` app from our last tutorial into a modular design. 
+
+# Building Our Modular App Step by Step
+
+## Step 1: Plan Your Module Structure
+
+For this app, each tab can be converted into its own module:
+
+- Volcano Plot Module  
+- Boxplot Module  
+- Heatmap Module. 
+
+This mirrors the current tab structure and keeps each analysis aspect self-contained.
+
+## Step 2: Create Module Files
+
+Each module will be written into it's own R script. To ensure Shiny understands where it should locate module files create a directory called `modular_app` and within that folder create a subdirectory called `R`. Within the `R` directory you will save all of the files for each module. 
+
+Organize your codebase by creating separate files for each module:  
+
+- volcano_mod.R  
+- boxplot_mod.R  
+- heatmap_mod.R  
+
+In this tutorial each file will contain both the UI and server functions for that module.
+
+## Step 3: Refactor Code for Volcano Plot into a Module
+
+Below is a template for how to convert a tab of our initial `dgeVis` app into a module. 
+
+**a. Volcano Plot Module (`volcano_mod.R`)**
+```{r volcano-module}
+
+# volcano_mod.R
+
+volcano_ui <- function(id) {
+  ns <- NS(id)
+  tagList(
+    selectInput(ns("contrast"), "Select a contrast:", choices = NULL),
+    plotOutput(ns("volcanoPlot")),
+    DTOutput(ns("top_dge"))
+  )
+}
+
+volcano_server <- function(id, dge_results) {
+  moduleServer(id, function(input, output, session) {
+    updateSelectInput(session, "contrast", choices = names(dge_results))
+    
+    contrast <- reactive({
+      req(input$contrast)
+      dge_results[[input$contrast]]
+    })
+    
+    output$volcanoPlot <- renderPlot({
+      contrast() %>%
+        ggplot(aes(x = logFC, 
+                   y = -log10(P.Value),
+                   colour = DE,
+                   text = paste("Gene:", SYMBOL, "\n",
+                                "EntrezID:", ENTREZID, "\n",
+                                "Chr:", TXCHROM, "\n"))) +
+        geom_point(size = 1, alpha = 0.5) + 
+        scale_colour_manual(values = c("blue", "grey", "red"), 
+                            breaks = c("Down", "Not significant", "Up")) + 
+        theme_bw() + 
+        theme(axis.title = element_text(size = 14, face = "bold"),
+              legend.title = element_text(size = 14, face = "bold"),
+              legend.text = element_text(size = 14))
+    })
+    
+    output$top_dge <- renderDT({
+      df <- filter(contrast(), isSignificant == TRUE) %>% 
+        arrange(adj.P.Val) %>% 
+        dplyr::select(SYMBOL, TXCHROM, logFC, adj.P.Val, DE)
+    
+      # pass table to DT and supply parameters
+      datatable(df,
+                rownames = FALSE,
+                filter = "top",
+                options = list(
+                  pageLength = 10,
+                  lengthChange = FALSE
+                ))
+    })
+     
+  })
+}
+
+```
+
+Save the code for `volcano_mod.R` into an R script with that name and ensure it is listed in the `R` directory of `modular_app`.
+
+Before moving on, let's break down the differences between the module and the code from the initial app:
+
+**1. UI Function: `volcano_ui`**
+```r
+volcano_ui <- function(id) {
+  ns <- NS(id)
+  tagList(
+    selectInput(ns("contrast"), "Select a contrast:", choices = NULL),
+    plotOutput(ns("volcanoPlot")),
+    DTOutput(ns("top_dge"))
+  )
+}
+```
+The modular approach separates the volcano plot into its own UI function, encapsulated and namespaced for reuse and clarity.
+
+1. `volcano_ui <- function(id) {...}` 
+  - Defines a UI function for the volcano plot module, which takes a single argument, `id`.  
+  - **Difference from single-instance:** In a typical app, you would not wrap your UI code in a function or require an id parameter. In a module, this `id` is essential for namespacing.  
+
+2. `ns <- NS(id)`
+  - Creates a namespacing function (`ns`) using the provided `id`. This function will prefix all input and output IDs within the module to ensure they are unique.  
+  - **Difference from single-instance:** In a non-modular app, you would use plain strings for input/output IDs (e.g., `"contrast"`). In a module, you must use `ns("...")` to avoid ID collisions if the module is used more than once.  
+
+3. `tagList(...)`
+  - Begins a list of UI elements to be returned by the module.  
+  - **Difference from single-instance:** Same as in a single-instance app; tagList is commonly used to group UI elements.  
+
+4. `selectInput(ns("contrast"), "Select a contrast:", choices = NULL)`
+  - Adds a select input for choosing a contrast. The input ID is namespaced using `ns("contrast")`, making it unique to this module instance.  
+  - **Difference from single-instance:** In a regular app, you would write `selectInput("contrast", ...),` which could conflict if used multiple times. Here, `ns("contrast")` ensures uniqueness (e.g., `"volcano-contrast"` if `id = "volcano"`).  
+
+5. `plotOutput(ns("volcanoPlot"))`
+  - Adds a plot output for the volcano plot. The output ID is namespaced.  
+  - **Difference from single-instance:** Normally, you’d use `plotOutput("volcanoPlot")`. In a module, `ns("volcanoPlot")` ensures this output is only referenced by this module instance.  
+
+6. `DTOutput(ns("top_dge"))`
+  - Adds a DataTable output for displaying top differentially expressed genes. The output ID is namespaced.  
+  - **Difference from single-instance:** In a single-instance app, `DTOutput("top_dge")` could clash with other tables. Here, `ns("top_dge")` keeps it unique.
+
+<br>
+**Summary Table: Key UI Differences**  
+
+| Line | Single Script App | Modular App  |
+| :------------ |:------------| :------------|
+| Function definition | Not wrapped in a function | Wrapped in `function(id)` |
+| Namespacing `(ns <- NS(id))` | Not present | Always present | 
+| Input/output IDs | Plain strings (e.g., "contrast") | Namespaced: `ns("contrast")` | 
+| Reusability | Only one instance possible | Multiple, independent instances allowed |
+
+<br>
+**2. Server Function: `volcano_server`**
+```r
+volcano_server <- function(id, dge_results) {
+  moduleServer(id, function(input, output, session) {
+    updateSelectInput(session, "contrast", choices = names(dge_results))
+    
+    contrast <- reactive({
+      req(input$contrast)
+      dge_results[[input$contrast]]
+    })
+    
+    output$volcanoPlot <- renderPlot({
+      # ... plotting code using contrast()
+    })
+    
+    output$top_dge <- renderDT({
+      # ... table code using contrast()
+    })
+  })
+}
+```
+The modular approach separates the volcano plot into its own Server function, encapsulated and namespaced for reuse and clarity.
+
+1. `volcano_server <- function(id, dge_results) {...}`
+  - Defines the server logic for the volcano plot module, as a function that takes a unique `id` (namespace) and the data (`dge_results`).  
+  - **Difference from single-instance:** In a regular app, you would not wrap your server code in a function or require an `id`. In a module, this function structure is essential for instantiating the module multiple times with different namespaces or data.  
+
+2. `moduleServer(id, function(input, output, session) {.`..}
+  - Sets up the server logic for a module, automatically scoping input, output, and session to the module’s namespace (set by `id`).  
+  - **Difference from single-instance:** In a single-app server, you’d just have `server <- function(input, output, session) { ... }`. Here, `moduleServer()` ensures that all reactivity and outputs are isolated to this module instance.  
+
+3. `updateSelectInput(session, "contrast", choices = names(dge_results))`
+  - Dynamically updates the choices for the `"contrast"` select input using the names from `dge_results`.  
+  - **Difference from single-instance:** In a non-modular app, you’d reference `"contrast"` directly and use the global session. In a module, the session object is automatically namespaced, and `"contrast"` refers to the input within this module instance only.  
+
+```r
+contrast <- reactive({
+      req(input$contrast)
+      dge_results[[input$contrast]]
+    })
+```
+  - Creates a reactive expression that returns the selected contrast’s data from `dge_results`. It waits until `input$contrast` is available.
+  - **Difference from single-instance:** In a single app, `input$contrast` would refer to a global input. Here, it refers only to the input for this module instance, thanks to namespacing.  
+
+```r
+output$volcanoPlot <- renderPlot({
+      # ... plotting code using contrast()
+    })
+```
+  - Defines the output for the volcano plot, using the data from the selected contrast.  
+  - **Difference from single-instance:** In a single app, you’d use `output$volcanoPlot`. In a module, this output is automatically namespaced (e.g., `volcano-volcanoPlot` if `id = "volcano"`), so it doesn’t conflict with other instances.
+
+<br>
+
+**Summary Table: Key Server Differences**  
+
+| Line/Concept | Single Script App | Modular App  |
+| :------------ |:------------| :------------|
+| Function definition | Not wrapped in a function | Wrapped in `function(id, ...)` |
+| Use of `moduleServer()` | Not used | Always used for module server logic |
+| Input/output references | Global (e.g., `input$contrast`) |	Namespaced to module instance |
+| Session object | 	Global | Namespaced to module instance |
+| Data parameterization | Uses global variables | Data passed as function argument (`dge_results`) |
+| Output assignment | Global (e.g. `output$volcanoPlot`) | Namespaced, unique to each instance |
+| Reusability | Only one instance possible | Multiple, independent instances allowed |
+  
+<br>
+
+## Step 4: Refractor Code for Boxplot/Heatmap modules
+
+We repeat this process for the other two modules:
+
+**b. Boxplot Module** (`boxplot_mod.R`)
+```{r boxplot-module}
+
+# boxplot_mod.R
+
+boxplot_ui <- function(id) {
+  ns <- NS(id)
+  tagList(
+    selectInput(ns("gene"), "Select a gene to plot:", choices = NULL),
+    plotOutput(ns("boxplot"))
+  )
+}
+
+boxplot_server <- function(id, deg_long, top_genes) {
+  moduleServer(id, function(input, output, session) {
+    updateSelectInput(session, "gene", choices = top_genes$gene)
+    
+    output$boxplot <- renderPlot({
+      filter(deg_long, Gene == input$gene) %>% 
+      ggplot(aes(x = Group, y = Expression)) + 
+      geom_boxplot() + 
+      scale_y_continuous(limits = c(-5, 15)) + 
+      geom_jitter(aes(colour = Group)) + 
+      theme_bw() + 
+      theme(axis.text = element_text(size = 14),
+            axis.title = element_text(size = 14, face = "bold"),
+            legend.position = "none") + 
+      labs(x = "Cell Type", y=expression("Counts per million (log"[2]*")"))
+    })
+  })
+}
+
+```
+
+Copy the boxplot module code above into a new R script and save this in your `R` directory as `boxplot_mod.R`.
+
+**c. Heatmap Module** (`heatmap_mod.R`)
+```{r heatmap-module}
+
+# heatmap_mod.R
+
+heatmap_ui <- function(id) {
+  ns <- NS(id)
+  plotOutput(ns("heatmap"), height = 800)
+}
+
+heatmap_server <- function(id, deg_matrix) {
+  moduleServer(id, function(input, output, session) {
+    
+    output$heatmap <- renderPlot({
+      pheatmap(deg_matrix, cluster_rows = TRUE, cluster_cols = TRUE)
+    })
+  })
+}
+
+```
+
+Copy the heatmap module code above into a new R script and save this in your `R` directory as `heatmap_mod.R`.
+
+## Step 5: Create The Main App File
+
+It is now time to create the main app file so that we can launch our `Modular dgeVis` app.
+
+The **main app file** in a modular Shiny app acts as the central hub that brings together all the modular components. It typically contains:  
+
+- The overall **UI definition**, where you assemble the layout and insert each module’s UI function, passing a unique namespace ID to each instance.  
+- The **server function**, where you call each module’s server logic, again using the corresponding namespace ID and supplying any needed data or parameters.  
+- The call to `shinyApp(ui, server)` to launch the app.  
+
+The main app file does not contain the detailed logic or UI for each feature—instead, it delegates these to modules, which are self-contained units of UI and server code. By referencing modules, the main file stays short and readable, and each feature remains isolated and reusable. The main app file also ensures that each module instance is uniquely identified via its namespace, preventing conflicts and enabling multiple instances of the same module if needed.
+
+Below is the code for our main app file for our Modular dgeVis app:
+
+```{r main-app-file}
+
+# app.R
+
+# Load libraries 
+library(shiny)
+library(tidyverse)
+library(here)
+library(DT)
+library(pheatmap)
+
+# import data
+dge_results <- readRDS(here("data/top.treat.results.rds"))
+lcpm <- readRDS(here("data/lcpm.rds"))
+top_genes <- read_csv(here("data/top.DE.mouse.genes.csv"))
+# replace colnames with group_sample ID
+colnames(lcpm) <- c("LP_1", "ML_1", "Basal_1", "Basal_2", "ML_2", "LP_2", "Basal_3", "ML_3", "LP_3")
+
+# subset lcpm for DEG's
+deg_matrix <- lcpm[rownames(lcpm) %in% top_genes$gene, ]
+
+# pivot to long format
+deg_long <- as.data.frame(deg_matrix) %>%
+  mutate(Gene = rownames(.)) %>%
+  pivot_longer(-Gene, names_to = "Sample", values_to = "Expression") %>% 
+  mutate(Group = ifelse(grepl("LP_", Sample), "LP",
+                        ifelse(grepl("ML", Sample), "ML", "Basal")))
+
+ui <- fluidPage(
+  titlePanel("Gene Expression Visualization"),
+  tabsetPanel(
+    tabPanel("Volcano Plot", volcano_ui("volcano")),
+    tabPanel("Box-plots", boxplot_ui("boxplot")),
+    tabPanel("Heatmap", heatmap_ui("heatmap"))
+  )
+)
+
+server <- function(input, output, session) {
+  volcano_server("volcano", dge_results)
+  boxplot_server("boxplot", deg_long, top_genes)
+  heatmap_server("heatmap", deg_matrix)
+}
+
+shinyApp(ui, server)
+
+```
+
+1. Copy the complete main-app code  above into the new R script.
+2. Save the file with the name "app.R" within the `modular_app` directory above the `R` directory.
+
+Before testing, let's break down the code in the main app:
+
+1. **UI Section**
+```r
+ui <- fluidPage(
+  titlePanel("Gene Expression Visualization"),
+  tabsetPanel(
+    tabPanel("Volcano Plot", volcano_ui("volcano")),
+    tabPanel("Box-plots", boxplot_ui("boxplot")),
+    tabPanel("Heatmap", heatmap_ui("heatmap"))
+  )
+)
+```
+- `fluidPage(...)`: The top-level layout function for your app, providing a responsive web page structure.  
+- `titlePanel("Gene Expression Visualization")`: Displays the main app title at the top.  
+- `tabsetPanel(...)`: Creates a tabbed interface, allowing users to switch between different visualizations.  
+Within `tabsetPanel`:  
+- `tabPanel("Volcano Plot", volcano_ui("volcano"))`. 
+    - Adds a tab labeled "Volcano Plot".  
+    - Calls the volcano plot module’s UI function (`volcano_ui`) with the namespace "volcano".  
+- `tabPanel("Box-plots", boxplot_ui("boxplot"))`.  
+    - Adds a tab labeled "Box-plots".  
+    - Calls the boxplot module’s UI function (`boxplot_ui`) with the namespace "boxplot".  
+- `tabPanel("Heatmap", heatmap_ui("heatmap"))`  
+    - Adds a tab labeled "Heatmap".
+    - Calls the heatmap module’s UI function (`heatmap_ui`) with the namespace "heatmap".
+
+2. **Server Section**  
+```r
+server <- function(input, output, session) {
+  volcano_server("volcano", dge_results)
+  boxplot_server("boxplot", deg_long, top_genes)
+  heatmap_server("heatmap", deg_matrix)
+}
+```
+- `server <- function(input, output, session) { ... }`: The main server function for your app.
+- `volcano_server("volcano", dge_results)`  
+    - Initializes the volcano plot module’s server logic.  
+    - "volcano" is the namespace (must match the UI call).  
+    - `dge_results` is the data passed into the module.  
+- `boxplot_server("boxplot", deg_long, top_genes)`  
+    - Initializes the boxplot module’s server logic.  
+    - `"boxplot"` is the namespace.  
+    - `deg_long` and `top_genes` are the data inputs for this module.  
+- `heatmap_server("heatmap", deg_matrix)`  
+    - Initializes the heatmap module’s server logic.  
+    - `"heatmap"` is the namespace.  
+    - `deg_matrix` is the data input for this module.
+
+**How it Works**:  
+
+- Each `*_server` call links the UI module instance to its server-side logic using the same namespace.  
+- Data is passed directly to each module, making them self-contained and reusable.  
+- Modules operate independently, each managing its own reactivity and outputs.  
+
+### Test the Modular app
+
+Open the `app.R` file you created and click the "Run App" button in RStudio (or use `shiny::runApp()` in the console).
+    
+If you have any trouble you can also test our pre-compiled example. Within the `05_shiny_module` directory open the file `app.R` and click "Run App". 
+
+Spend a few minutes exploring the modular app.
+
+## Step 6: Reuse Shiny Modules
+
+We have a working Modular app which is simpler to update and modify than our single app file. However, we haven't yet made use of one of the central benefits of Modular Shiny Apps, which is the ability to re-use instances of any UI or Server logic in multiple places of a single app (or indeed across different Shiny apps).
+
+Let's demonstrate how this works. The example below creates a second boxplot selection and chart with our module and shows you how effortless this task is now. No need to repeat the logic - simply call the functions and you're good to go:
+
+Create a new R Script, copy the code below into this file and save it as something like `reused-module-app.R`.
+
+```{r main-app2-file}
+
+# app-reused-module.R
+
+# Load libraries 
+library(shiny)
+library(tidyverse)
+library(here)
+library(DT)
+library(plotly)
+library(heatmaply)
+
+# import data
+dge_results <- readRDS(here("data/top.treat.results.rds"))
+lcpm <- readRDS(here("data/lcpm.rds"))
+top_genes <- read_csv(here("data/top.DE.mouse.genes.csv"))
+# replace colnames with group_sample ID
+colnames(lcpm) <- c("LP_1", "ML_1", "Basal_1", "Basal_2", "ML_2", "LP_2", "Basal_3", "ML_3", "LP_3")
+
+# subset lcpm for DEG's
+deg_matrix <- lcpm[rownames(lcpm) %in% top_genes$gene, ]
+
+# pivot to long format
+deg_long <- as.data.frame(deg_matrix) %>%
+  mutate(Gene = rownames(.)) %>%
+  pivot_longer(-Gene, names_to = "Sample", values_to = "Expression") %>% 
+  mutate(Group = ifelse(grepl("LP_", Sample), "LP",
+                        ifelse(grepl("ML", Sample), "ML", "Basal")))
+
+ui <- fluidPage(
+  titlePanel("Gene Expression Visualization"),
+  tabsetPanel(
+    tabPanel("Volcano Plot", volcano_ui("volcano")),
+    tabPanel("Box-plots", 
+             boxplot_ui("boxplot1"),
+             boxplot_ui("boxplot2")),
+    tabPanel("Heatmap", heatmap_ui("heatmap"))
+  )
+)
+
+server <- function(input, output, session) {
+  volcano_server("volcano", dge_results)
+  boxplot_server("boxplot1", deg_long, top_genes)
+  boxplot_server("boxplot2", deg_long, head(top_genes))
+  heatmap_server("heatmap", deg_matrix)
+}
+
+shinyApp(ui, server)
+```
+
+Let's breakdown the changes:
+
+1. **Multiple calls to `boxplot_ui`**
+```r
+tabPanel("Box-plots", 
+         boxplot_ui("boxplot1"),
+         boxplot_ui("boxplot2"))
+```
+**Explanation**  
+ - You are calling `boxplot_ui()` twice within the same tab, each time with a different namespace (`"boxplot1"` and `"boxplot2"`).  
+ - This creates two completely independent boxplot UI components on the same page.  
+ 
+**How it Works**  
+ - The `NS(id)` function inside `boxplot_ui()` ensures that all input/output IDs are unique to each instance.  
+ - For example, the gene selection input for `boxplot1` is "boxplot1-gene" and for `boxplot2` is "boxplot2-gene".  
+ - This means users can interact with each boxplot independently.  
+
+2. **Multiple Calls to `boxplot_server()` with Different Data**
+```r
+boxplot_server("boxplot1", deg_long, top_genes)
+boxplot_server("boxplot2", deg_long, head(top_genes))
+```
+**Explanation** 
+
+ - You are initializing two separate boxplot server modules, each with a unique namespace (`"boxplot1"`, `"boxplot2"`).
+ - The first instance (`boxplot1`) gets the full list of genes (`top_genes`).
+ - The second instance (`boxplot2`) gets only the first few genes (`head(top_genes)`).  
+ 
+**How it Works** 
+
+ - Each server module operates in its own namespace and receives its own data.  
+ - The `selectInput` in each UI will display only the genes provided to that server instance.  
+ - The plots generated will reflect the gene selected from the respective subset.  
+ - Note we have only adjusted the gene list supplied to the `boxplot2` instance of `boxplot_server`. We could easily have provided a completely different dataset for plotting.  
+
+**Benefits**  
+- **Reusability**: You only need to write the boxplot UI/server code once, but can use it as many times as needed.  
+- **Isolation**: Each instance maintains its own state; changes in one do not affect the other.  
+- **Scalability**: Adding more boxplot modules is trivial—just add more calls with new IDs.  
+- **Flexibility**: The same module can be used with different data inputs, even within a single app.  
+- **Customizability**: Each module instance can be tailored to a specific subset or even a completely different dataset.
+
+Test out the updated app (or try the example version `app-reused-module.R` within `example_apps/05_modular_app`).
+
+# Extending the Module Concept
+
+In this tutorial we broke down each tab of our initial Shiny app into three separate modules, each written into a single file (e.g. `boxplot_mod`) containing both the UI and Server code (e.g. `boxplot_ui` and `boxplot_server`). Alternatively, we could have structured this across six files, where each file contained code for the UI or Server function. **Why might you do this?** 
+
+It is not necessary for the current Shiny app where each UI/Server pair represents a self-contained portion of the app/analysis. But in a larger Shiny app you may have a UI or Server function that performs a stand along action you wish to repeat in multiple places of your larger Shiny app, or re-use in a different Shiny app. In these cases, separating your UI/Server functions may be beneficial.
+
+# Key Concepts to Understand
+
+Using modules for your Shiny app will result in apps that are scalable and easier to maintain. Key points to remember:
+
+- **Namespace inputs/outputs**: Always use `NS(id)` in UI and `moduleServer()` in server logic to prevent conflicts.  
+- **Pass data as arguments**: Supply each module with only the data it needs, keeping modules independent.  
+- **Organize files**: Store modules in a `modules/` or `R/` directory for clarity.  
+- **Document modules**: Add comments and documentation for easier maintenance and reuse.  
+
+<br>
+**Summary Table: Before vs. After Modularization**
+
+| Aspect | Single Script App | Modular App  |
+| :--------- |:------------|:------------|
+| File Structure | One long file | Multiple files (one per module) |
+| Code Organization | All logic together | Self-contained UI/server per module |
+| Maintainability | Hard to manage | Easy to maintain and scale |
+| Reusability | Low | High (modules can be reused) | 
+| Collaboration | Difficult | Multiple devs can work independently | 
+
+<br>
+
+# Challenge Exercises
+
+Now that you understand the basics, try these exercises to extend the app:
+
+1. Try splitting each module app into separate files for `*_ui` and `*_server`. Does the app still function?
+2. Provide an alternate set of data for the second instance of boxplot UI and Server modules.
+
+# Conclusion
+
+In this tutorial, you've learned:
+
+1. How to break a large, single-file Shiny app into smaller, self-contained modules, each with its own UI and server logic, making your codebase easier to organize and maintain.  
+2. How Shiny modules use namespacing to prevent input/output conflicts, allowing you to safely reuse the same module multiple times within an app or across different projects.  
+3. You practiced passing data and parameters to module instances, enabling flexible and customizable components that can adapt to different datasets or requirements.  
+4. You gained experience in building scalable, reusable, and testable Shiny apps, laying the foundation for collaborative development and easier future expansion
+
+# Resources for Further Learning
+
+- [Posit - Modularizing Shiny app code](https://shiny.posit.co/r/articles/improve/modules/)  
+- [Mastering Shiny - Shiny Modules](https://mastering-shiny.org/scaling-modules.html)  
+- [Datanovia- Shiny Modules for Scalablem Applications](https://www.datanovia.com/learn/tools/shiny-apps/advanced-concepts/modules.html)  
+- [Appsilon - R Shiny Modules](https://www.appsilon.com/post/r-shiny-modules)  
+
