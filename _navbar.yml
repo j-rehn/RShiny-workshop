@@ -16,5 +16,7 @@ left:
          href: ./04_interactive_outputs.html
        - text: "05 Shiny Modules"
          href: ./05_shiny_modules.html
+       - text: "06 Publishing Shiny"
+         href: ./06_publishingShiny.html
 right:
 

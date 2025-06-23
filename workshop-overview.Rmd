@@ -53,8 +53,7 @@ Demonstrated through the `shiny_modules` tutorial.
 
 ### Part 4 - Deploying your app  
 - Host on shinyapps.io  
-- Shiny server and other options  
-Demonstrated through the `deploying_shiny` tutorial.
+Demonstrated through the `publishingShiny` tutorial.
 
 ## Workshop Materials
 
