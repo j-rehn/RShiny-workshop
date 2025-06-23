@@ -1,0 +1,93 @@
+---
+title: "Publishing Your First Shiny App on shinyapps.io"
+author: "Dr Melanie Smith"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: readable
+    df_print: paged
+---
+
+# 🚀 Publishing Your First Shiny App on shinyapps.io
+
+Have you built your first Shiny app and now want to share it with others? Hosting it online is easier than you might think! In this short tutorial, we’ll walk through the steps to publish your Shiny app using [shinyapps.io](https://www.shinyapps.io), a free hosting platform provided by RStudio (now Posit). This will make your app accessible from any browser with a simple link — no local R installation required.
+
+Let’s get started!
+
+---
+
+## ✨ Step 1: Create a shinyapps.io Account
+
+Go to [shinyapps.io](https://www.shinyapps.io) and click the **Sign Up** button.
+
+![Sign up page](images/shinyPublish_1.jpg)
+
+You’ll be prompted to enter your email address and choose a username (mine is very imaginative, as you can see below!).
+
+![Choosing a username](images/shinyPublish_2.jpg)
+
+---
+
+## 🔐 Step 2: Log In and Authorize Your Account
+
+Once your account is created, log in to reach your dashboard.
+
+![Dashboard overview](images/shinyPublish_3.jpg)
+
+Take note of the "**Step 2: Authorize Account**" section—you’ll need it shortly to link your RStudio session to shinyapps.io.
+
+---
+
+## 💻 Step 3: Return to RStudio and Prepare to Publish
+
+Back in RStudio, make sure the files for your Shiny app are open. Click the **Publish** icon (a blue button in the top-right corner of the Source pane).
+
+RStudio may prompt you to install or update some packages like **Packrat** and **rsconnect**. Go ahead and say yes.
+
+---
+
+## 🔗 Step 4: Connect RStudio to ShinyApps.io
+
+Next, RStudio will guide you through linking to your shinyapps.io account. Click **Next** when prompted.
+
+![Connecting account](images/shinyPublish_4.jpg)
+
+On the next screen, choose **ShinyApps.io** as your publishing destination.
+
+![Select ShinyApps.io](images/shinyPublish_5.jpg)
+
+---
+
+## 🗝️ Step 5: Use Your Secret Key
+
+Now RStudio will ask you to enter your account token and secret. This is where you return to your shinyapps.io dashboard.
+
+Click **“Show Secret”**, then **“Copy to clipboard”**.
+
+![Show Secret](images/shinyPublish_7.jpg)  
+
+Paste the key into RStudio and click **Connect Account**.
+
+![Copy to clipboard](images/shinyPublish_6.jpg)
+
+---
+
+## 🚀 Step 6: Publish Your App
+
+After connecting your account, you’re ready to publish!
+
+Click **Publish** and RStudio will upload your app. After a short wait, your app will open in a new browser tab, hosted online and ready to use.
+
+---
+
+## 📬 Step 7: Share the Link
+
+Once your app is deployed, you’ll receive a URL (something like `https://yourusername.shinyapps.io/yourapp/`). Copy this link and share it with friends, colleagues, or on social media.
+
+---
+
+That’s it! You’ve successfully published your first Shiny app 🎉
+
+---
+
