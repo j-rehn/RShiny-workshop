@@ -9,14 +9,15 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
+<meta name="author" content="Dr Melanie Smith" />
 
 
-<title>RShiny Workshop (COMBINE SA)</title>
+<title>Publishing Your First Shiny App on shinyapps.io</title>
 
 <script src="site_libs/header-attrs-2.29/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<link href="site_libs/bootstrap-3.3.5/css/readable.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
@@ -29,7 +30,12 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.13.2/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet" />
+<script src="site_libs/pagedtable-1.1/js/pagedtable.js"></script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -207,6 +213,69 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -214,6 +283,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -272,34 +351,122 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">RShiny Workshop (COMBINE SA)</h1>
+<h1 class="title toc-ignore">Publishing Your First Shiny App on
+shinyapps.io</h1>
+<h4 class="author">Dr Melanie Smith</h4>
 
 </div>
 
 
-<div id="welcome" class="section level1">
-<h1>Welcome</h1>
-<p>Welcome to our <strong>RShiny Workshop</strong> proudly supported by
-the SA COMBINE committee.</p>
-<p>Shiny is an R package which allows you to build interactive webpages
-with R (No knowledge of html/CSS or webpage development required!).</p>
-<p>This workshop will provide an introduction to Shiny and allow you to
-build several simple apps to get a feel for how Shiny works and what you
-can do.</p>
-<div id="pre-requisites" class="section level2">
-<h2>Pre-requisites</h2>
-<p>The tutorial is designed for those who already have some knowledge or
-<code>R</code> and <code>Rstudio</code>. You will need to have both
-installed on your computer.</p>
-<p>Additionally, you will need to install the R package
-<code>Shiny</code> and some other useful packages for building apps.
-Click on the <strong>Getting Started</strong> tab at the top of this
-site for complete install and setup instructions.</p>
+<div id="publishing-your-first-shiny-app-on-shinyapps.io"
+class="section level1">
+<h1>🚀 Publishing Your First Shiny App on shinyapps.io</h1>
+<p>Have you built your first Shiny app and now want to share it with
+others? Hosting it online is easier than you might think! In this short
+tutorial, we’ll walk through the steps to publish your Shiny app using
+<a href="https://www.shinyapps.io">shinyapps.io</a>, a free hosting
+platform provided by RStudio (now Posit). This will make your app
+accessible from any browser with a simple link — no local R installation
+required.</p>
+<p>Let’s get started!</p>
+<hr />
+<div id="step-1-create-a-shinyapps.io-account" class="section level2">
+<h2>✨ Step 1: Create a shinyapps.io Account</h2>
+<p>Go to <a href="https://www.shinyapps.io">shinyapps.io</a> and click
+the <strong>Sign Up</strong> button.</p>
+<div class="float">
+<img src="images/shinyPublish_1.jpg" alt="Sign up page" />
+<div class="figcaption">Sign up page</div>
+</div>
+<p>You’ll be prompted to enter your email address and choose a username
+(mine is very imaginative, as you can see below!).</p>
+<div class="float">
+<img src="images/shinyPublish_2.jpg" alt="Choosing a username" />
+<div class="figcaption">Choosing a username</div>
+</div>
+<hr />
+</div>
+<div id="step-2-log-in-and-authorize-your-account"
+class="section level2">
+<h2>🔐 Step 2: Log In and Authorize Your Account</h2>
+<p>Once your account is created, log in to reach your dashboard.</p>
+<div class="float">
+<img src="images/shinyPublish_3.jpg" alt="Dashboard overview" />
+<div class="figcaption">Dashboard overview</div>
+</div>
+<p>Take note of the “<strong>Step 2: Authorize Account</strong>”
+section—you’ll need it shortly to link your RStudio session to
+shinyapps.io.</p>
+<hr />
+</div>
+<div id="step-3-return-to-rstudio-and-prepare-to-publish"
+class="section level2">
+<h2>💻 Step 3: Return to RStudio and Prepare to Publish</h2>
+<p>Back in RStudio, make sure the files for your Shiny app are open.
+Click the <strong>Publish</strong> icon (a blue button in the top-right
+corner of the Source pane).</p>
+<p>RStudio may prompt you to install or update some packages like
+<strong>Packrat</strong> and <strong>rsconnect</strong>. Go ahead and
+say yes.</p>
+<hr />
+</div>
+<div id="step-4-connect-rstudio-to-shinyapps.io" class="section level2">
+<h2>🔗 Step 4: Connect RStudio to ShinyApps.io</h2>
+<p>Next, RStudio will guide you through linking to your shinyapps.io
+account. Click <strong>Next</strong> when prompted.</p>
+<div class="float">
+<img src="images/shinyPublish_4.jpg" alt="Connecting account" />
+<div class="figcaption">Connecting account</div>
+</div>
+<p>On the next screen, choose <strong>ShinyApps.io</strong> as your
+publishing destination.</p>
+<div class="float">
+<img src="images/shinyPublish_5.jpg" alt="Select ShinyApps.io" />
+<div class="figcaption">Select ShinyApps.io</div>
+</div>
+<hr />
+</div>
+<div id="step-5-use-your-secret-key" class="section level2">
+<h2>🗝️ Step 5: Use Your Secret Key</h2>
+<p>Now RStudio will ask you to enter your account token and secret. This
+is where you return to your shinyapps.io dashboard.</p>
+<p>Click <strong>“Show Secret”</strong>, then <strong>“Copy to
+clipboard”</strong>.</p>
+<div class="float">
+<img src="images/shinyPublish_7.jpg" alt="Show Secret" />
+<div class="figcaption">Show Secret</div>
+</div>
+<p>Paste the key into RStudio and click <strong>Connect
+Account</strong>.</p>
+<div class="float">
+<img src="images/shinyPublish_6.jpg" alt="Copy to clipboard" />
+<div class="figcaption">Copy to clipboard</div>
+</div>
+<hr />
+</div>
+<div id="step-6-publish-your-app" class="section level2">
+<h2>🚀 Step 6: Publish Your App</h2>
+<p>After connecting your account, you’re ready to publish!</p>
+<p>Click <strong>Publish</strong> and RStudio will upload your app.
+After a short wait, your app will open in a new browser tab, hosted
+online and ready to use.</p>
+<hr />
+</div>
+<div id="step-7-share-the-link" class="section level2">
+<h2>📬 Step 7: Share the Link</h2>
+<p>Once your app is deployed, you’ll receive a URL (something like
+<code>https://yourusername.shinyapps.io/yourapp/</code>). Copy this link
+and share it with friends, colleagues, or on social media.</p>
+<hr />
+<p>That’s it! You’ve successfully published your first Shiny app 🎉</p>
+<hr />
 </div>
 </div>
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -332,6 +499,35 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>
